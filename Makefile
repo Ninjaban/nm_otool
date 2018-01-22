@@ -10,29 +10,30 @@
 #                                                                              #
 #  **************************************************************************  #
 
+NAME		=	nm_otool
 NAME_NM		=	ft_nm
 NAME_OTOOL	=	ft_otool
 
 
-SRC_NM		=
-SRC_OTOOL	=
+SRC_NM		=	ft_nm.c
+SRC_OTOOL	=	ft_otool.c
 
 LIB		=	libft.a
 
-DIRSRC_NM	=	sources/ft_nm
-DIRSRC_OTOOL	=	sources/ft_otool
+DIRSRC_NM	=	sources/ft_nm/
+DIRSRC_OTOOL	=	sources/ft_otool/
 DIRINC		=	include/
 DIRLIB		=	library/
 
-SRCS_NM		=	$(SRC_NM:%=$(DIRSRC)%)
-SRCS_OTOOL	=	$(SRC_OTOOL:%=$(DIRSRC)%)
+SRCS_NM		=	$(SRC_NM:%=$(DIRSRC_NM)%)
+SRCS_OTOOL	=	$(SRC_OTOOL:%=$(DIRSRC_OTOOL)%)
 LIBS		=	$(LIB:%=$(DIRLIB)%)
 
 OBJS_NM		=	$(SRCS_NM:.c=.o)
 OBJS_OTOOL	=	$(SRCS_OTOOL:.c=.o)
 
 CFLAGS		=	-Wall -Wextra -Werror -I./$(DIRINC) -I./$(DIRLIB)$(DIRINC)
-LFLAGS		=	-lncurses
+LFLAGS		=
 
 CC		=	gcc
 RM		=	rm -f
@@ -53,15 +54,15 @@ $(NAME_OTOOL)	:	.libft .hide_otool
 			@$(CC) -o $@ -c $< $(CFLAGS)
 			@$(ECHO) '\-\> \033[36m$@\033[0m\n'
 
-.hide_nm	:	$(OBJS)
+.hide_nm	:	$(OBJS_NM)
 			@touch .hide_nm
 			@chmod 755 .hide_nm
-			@$(ECHO) '\033[32m>\033[0m $(NAME) : [\033[33mft_nm\033[0m]    ->\033[32m	Ready\n\033[0m'
+			@$(ECHO) '\033[32m>\033[0m $(NAME_NM)    : [\033[33mft_nm\033[0m]    ->\033[32m	Ready\n\033[0m'
 
-.hide_otool	:	$(OBJS)
+.hide_otool	:	$(OBJS_OTOOL)
 			@touch .hide_otool
 			@chmod 755 .hide_otool
-			@$(ECHO) '\033[32m>\033[0m $(NAME) : [\033[33mft_otool\033[0m] ->\033[32m	Ready\n\033[0m'
+			@$(ECHO) '\033[32m>\033[0m $(NAME_OTOOL) : [\033[33mft_otool\033[0m] ->\033[32m	Ready\n\033[0m'
 
 .libft		:
 			@touch .libft
@@ -70,12 +71,15 @@ $(NAME_OTOOL)	:	.libft .hide_otool
 
 clean		:
 			@$(MAKE) $(DIRLIB) fclean
-			@$(RM) $(OBJS) .hide_nm .hide_otool .libft
-			@$(ECHO) '\033[31m>\033[0m $(NAME) : \033[31mDirectory cleaned\n\033[0m'
+			@$(RM) $(OBJS_NM) $(OBJS_OTOOL) .hide_nm .hide_otool .libft
+			@$(ECHO) '\033[31m>\033[0m $(NAME_NM)    : \033[31mDirectory cleaned\n\033[0m'
+			@$(ECHO) '\033[31m>\033[0m $(NAME_OTOOL) : \033[31mDirectory cleaned\n\033[0m'
 
 fclean		:	clean
-			@$(RM) $(NAME)
-			@$(ECHO) '\033[31m>\033[0m $(NAME) : \033[31mRemove executable\n\033[0m'
+			@$(RM) $(NAME_NM)
+			@$(RM) $(NAME_OTOOL)
+			@$(ECHO) '\033[31m>\033[0m $(NAME_NM)    : \033[31mRemove executable\n\033[0m'
+			@$(ECHO) '\033[31m>\033[0m $(NAME_OTOOL) : \033[31mRemove executable\n\033[0m'
 
 re		:	fclean all
 

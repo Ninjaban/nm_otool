@@ -6,17 +6,18 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/22 15:25:42 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/01/22 17:03:37 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>		/* |open()| */
-#include <unistd.h>		/* |fstat()| */
-#include <sys/mman.h>	/* |mmap()|, |munmap()| */
+#include <fcntl.h>			/* |open()| */
+#include <unistd.h>			/* |fstat()| */
+#include <sys/mman.h>		/* |mmap()|, |munmap()| */
+#include <mach-o/loader.h>	/* |MH_MAGIC_64|, |mach_header_64|, |load_command|, |symtab_command| */
+#include <mach-o/nlist.h>	/* |nlist_64| */
 #include <types.h>
-#include <wchar.h>
 
 #include "types.h"
 #include "error.h"
@@ -112,6 +113,57 @@ t_bool				ft_unmap_file(t_buffer *file)
 }
 
 
+t_bool				ft_print(int nsyms, int symoff, int stroff, void *ptr)
+{
+	char			*stringtable;
+	struct nlist_64	*list;
+
+	list = ptr + symoff;
+	stringtable = ptr + stroff;
+	for (int n = 0 ; n < nsyms ; ++ n)
+	{
+		FT_DEBUG("%s", stringtable + list[n].n_un.n_strx);
+	}
+
+	return (TRUE);
+}
+
+t_bool				ft_magic_number(t_buffer file)
+{
+	t_uint					magic_number;
+
+	int						ncmds;
+	struct load_command		*lc;
+	struct mach_header_64	*header;
+	struct symtab_command	*sym;
+
+	magic_number = *(int *)file.bytes;
+
+	if (magic_number == MH_MAGIC_64)
+	{
+		header = (struct mach_header_64 *)file.bytes;
+		ncmds = header->ncmds;
+		lc = (void *)file.bytes + sizeof(*header);
+
+		for (int n = 0 ; n < ncmds ; ++ n)
+		{
+			if (lc->cmd == LC_SYMTAB)
+			{
+				sym = (struct symtab_command *) lc;
+
+				ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes);
+
+				FT_DEBUG("nb symbole %d", sym->nsyms);
+				break;
+			}
+			lc = (void *)lc + lc->cmdsize;
+		}
+	}
+
+	return (TRUE);
+}
+
+
 t_bool				ft_nm(const char *path)
 {
 	int				fd;
@@ -153,9 +205,10 @@ t_bool				ft_nm(const char *path)
 
 	FT_DEBUG("%s is maped size %" PRIu32 " {%.*s}", path, file.size, file.size, file.bytes);
 
-	for (t_uint i = 0 ; i < file.size ; i ++)
+	if (!ft_magic_number(file))
 	{
-		printf("%C", (wint_t)(((char *)file.bytes)[i]));
+		FT_WARNING("ft_magic_number() failed %s", "");
+		return (FALSE);
 	}
 
 	if (!ft_unmap_file(&file))

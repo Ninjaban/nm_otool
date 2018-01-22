@@ -19,7 +19,8 @@ SRC_OTOOL	=
 
 LIB		=	libft.a
 
-DIRSRC		=	sources/
+DIRSRC_NM	=	sources/ft_nm
+DIRSRC_OTOOL	=	sources/ft_otool
 DIRINC		=	include/
 DIRLIB		=	library/
 

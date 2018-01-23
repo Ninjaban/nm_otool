@@ -116,7 +116,7 @@ $(OBJ_DIR)%.o :	$(SRC_DIR)%.c | $(OBJ_DIR)
 	@$(eval PERCENT=$(shell echo $$(($(INDEX)*100/$(NB)))))
 	@$(eval TO_DO=$(shell echo $$((20-$(INDEX)*20/$(NB) - 1))))
 	@$(eval COLOR=$(shell list=(160 196 202 208 215 221 226 227 190 154 118 82 46); index=$$(($(PERCENT) * $${#list[@]} / 100)); echo "$${list[$$index]}"))
-	@printf "\r\033[38;5;%dm⌛ [%s]: %2d%% `printf '█%.0s' {0..$(DONE)}`%*s❙%*.*s\033[0m\033[K" $(COLOR) $(NAME) $(PERCENT) $(TO_DO) "" $(DELTA) $(DELTA) "$(shell echo "$@" | sed 's/^.*\///')"
+	@printf "\r\033[38;5;%dm⌛ [%s]: %2d%% `printf '█%.0s' {0..$(DONE)}`%*s❙%*.*s\033[0m\033[0m" $(COLOR) $(NAME) $(PERCENT) $(TO_DO) "" $(DELTA) $(DELTA) "$(shell echo "$@" | sed 's/^.*\///')"
 	@$(CC) $(FLAGS) -MMD -c $< -o $@\
 		-I $(INC_DIR)
 	@$(eval INDEX=$(shell echo $$(($(INDEX)+1))))
@@ -125,14 +125,14 @@ clean :
 	@if [ -e $(OBJ_DIR) ]; \
 	then \
 		rm -rf $(OBJ_DIR); \
-		printf "\r\033[38;5;202m✗ clean $(NAME).\033[0m\033[K\n"; \
+		printf "\r\033[38;5;202m✗ $(NAME)\033[0m\033[0m\n"; \
 	fi;
 
 fclean :		clean
 	@if [ -e $(NAME) ]; \
 	then \
 		rm -rf $(NAME); \
-		printf "\r\033[38;5;196m✗ fclean $(NAME).\033[0m\033[K\n"; \
+		printf "\r\033[38;5;196m✗ $(NAME)\033[0m\033[0m\n"; \
 	fi;
 
 re :			fclean all

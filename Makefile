@@ -70,16 +70,30 @@ $(NAME_OTOOL)	:	.libft .hide_otool
 			@$(MAKE) $(DIRLIB)
 
 clean		:
-			@$(MAKE) $(DIRLIB) fclean
-			@$(RM) $(OBJS_NM) $(OBJS_OTOOL) .hide_nm .hide_otool .libft
-			@$(ECHO) '\033[31m>\033[0m $(NAME_NM)    : \033[31mDirectory cleaned\n\033[0m'
-			@$(ECHO) '\033[31m>\033[0m $(NAME_OTOOL) : \033[31mDirectory cleaned\n\033[0m'
+			@$(MAKE) $(DIRLIB) clean
+			@if [ -e $(OBJS_NM) ]; \
+			then \
+				$(RM) $(OBJS_NM) .hide_nm .libft; \
+				$(ECHO) '\r\033[38;5;202m✗ $(NAME_NM)\033[0m\033[0m\n'; \
+			fi;
+			@if [ -e $(OBJS_OTOOL) ]; \
+			then \
+				$(RM) $(OBJS_OTOOL) .hide_otool .libft; \
+				$(ECHO) '\r\033[38;5;202m✗ $(NAME_OTOOL)\033[0m\033[0m\n'; \
+			fi;
 
 fclean		:	clean
-			@$(RM) $(NAME_NM)
-			@$(RM) $(NAME_OTOOL)
-			@$(ECHO) '\033[31m>\033[0m $(NAME_NM)    : \033[31mRemove executable\n\033[0m'
-			@$(ECHO) '\033[31m>\033[0m $(NAME_OTOOL) : \033[31mRemove executable\n\033[0m'
+			@$(MAKE) $(DIRLIB) fclean
+			@if [ -e $(NAME_NM) ]; \
+			then \
+				$(RM) $(NAME_NM); \
+				$(ECHO) "\r\033[38;5;196m✗ $(NAME_NM)\033[0m\033[0m\n"; \
+			fi;
+			@if [ -e $(NAME_OTOOL) ]; \
+			then \
+				$(RM) $(NAME_OTOOL); \
+				$(ECHO) "\r\033[38;5;196m✗ $(NAME_OTOOL)\033[0m\033[0m\n"; \
+			fi;
 
 re		:	fclean all
 

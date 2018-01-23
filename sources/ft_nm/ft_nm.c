@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/22 17:03:37 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/01/23 12:49:27 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,11 @@
 #include <mach-o/loader.h>	/* |MH_MAGIC_64|, |mach_header_64|, |load_command|, |symtab_command| */
 #include <mach-o/nlist.h>	/* |nlist_64| */
 #include <types.h>
+#include <stdlib.h>
 
 #include "types.h"
 #include "error.h"
+#include "libft.h"
 
 /* -- basic check */
 typedef char __check_for_example_true[ (TRUE == 1) ? 1:-1 ];
@@ -113,16 +115,109 @@ t_bool				ft_unmap_file(t_buffer *file)
 }
 
 
-t_bool				ft_print(int nsyms, int symoff, int stroff, void *ptr)
+char				ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 {
+	if (n_sect == 1 && n_type == 14)
+		return ('t');
+	if (n_sect == 1 && n_type == 15)
+		return ('T');
+	if (n_sect == 9 && n_type == 14)
+		return ('b');
+	if (n_sect == 9 && n_type == 15)
+		return ('B');
+	if (n_sect == 11 && n_type == 14)
+		return ('d');
+	if (n_sect  == 11 && n_type == 15)
+		return ('D');
+	if (n_sect == 12 && n_type == 14)
+		return ('s');
+	if (n_sect  == 12 && n_type == 15)
+		return ('S');
+	return (0);
+}
+
+t_bool				ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
+{
+	char			c;
+	uint32_t		n;
+	uint32_t		tmp;
+	uint32_t		*order;
 	char			*stringtable;
 	struct nlist_64	*list;
 
 	list = ptr + symoff;
 	stringtable = ptr + stroff;
-	for (int n = 0 ; n < nsyms ; ++ n)
+	order = malloc(sizeof(uint32_t) * nsyms);
+	n = 0;
+	while (n < nsyms)
 	{
-		FT_DEBUG("%s", stringtable + list[n].n_un.n_strx);
+		order[n] = n;
+		n = n + 1;
+	}
+	n = 0;
+	while (n < nsyms)
+	{
+		if (n + 1 < nsyms && ft_strcmp(stringtable + list[order[n]].n_un.n_strx, stringtable + list[order[n + 1]].n_un.n_strx) >= 0)
+		{
+			tmp = order[n];
+			order[n] = order[n + 1];
+			order[n + 1] = tmp;
+			n = 0;
+		}
+		else
+			n = n + 1;
+	}
+	for (n = 0 ; n < nsyms ; ++ n)
+	{
+		c = ' ';
+		if (list[order[n]].n_type >= N_SECT)
+			c = ft_nsect_decription(list[order[n]].n_sect, list[order[n]].n_type);
+		else if (list[order[n]].n_sect == NO_SECT)
+			c = 'U';
+
+//		FT_DEBUG("n_type %" PRIu8 " n_sect %" PRIu8, list[order[n]].n_type, list[order[n]].n_sect);
+		if (list[order[n]].n_type == 1)
+			FT_DEBUG("%s %c %s",
+					 "                ",
+					 c,
+					 stringtable + list[order[n]].n_un.n_strx);
+		else
+			FT_DEBUG("%s%08x %c %s",
+					 "00000001",
+					 (uint32_t)list[order[n]].n_value,
+					 c,
+					 stringtable + list[order[n]].n_un.n_strx);
+	}
+
+	free(order);
+
+	return (TRUE);
+}
+
+
+t_bool				ft_header_64(t_buffer file)
+{
+	int						ncmds;
+	struct load_command		*lc;
+	struct mach_header_64	*header;
+	struct symtab_command	*sym;
+
+	header = (struct mach_header_64 *)file.bytes;
+	ncmds = header->ncmds;
+	lc = (void *)file.bytes + sizeof(*header);
+
+	for (int n = 0 ; n < ncmds ; ++ n)
+	{
+		if (lc->cmd == LC_SYMTAB)
+		{
+			sym = (struct symtab_command *) lc;
+
+			ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes);
+
+			FT_DEBUG("nb symbole %d", sym->nsyms);
+			break;
+		}
+		lc = (void *)lc + lc->cmdsize;
 	}
 
 	return (TRUE);
@@ -132,33 +227,10 @@ t_bool				ft_magic_number(t_buffer file)
 {
 	t_uint					magic_number;
 
-	int						ncmds;
-	struct load_command		*lc;
-	struct mach_header_64	*header;
-	struct symtab_command	*sym;
-
 	magic_number = *(int *)file.bytes;
 
 	if (magic_number == MH_MAGIC_64)
-	{
-		header = (struct mach_header_64 *)file.bytes;
-		ncmds = header->ncmds;
-		lc = (void *)file.bytes + sizeof(*header);
-
-		for (int n = 0 ; n < ncmds ; ++ n)
-		{
-			if (lc->cmd == LC_SYMTAB)
-			{
-				sym = (struct symtab_command *) lc;
-
-				ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes);
-
-				FT_DEBUG("nb symbole %d", sym->nsyms);
-				break;
-			}
-			lc = (void *)lc + lc->cmdsize;
-		}
-	}
+		ft_header_64(file);
 
 	return (TRUE);
 }

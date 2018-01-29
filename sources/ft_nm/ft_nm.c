@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/23 12:49:27 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/01/29 10:27:41 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ static void			internal_context_initialize (void)
 }
 
 
+//		TEMP double
 t_bool				ft_map_file(const int fd, const off_t size, t_buffer *file)
 {
 	void			*bytes;
@@ -95,6 +96,7 @@ t_bool				ft_map_file(const int fd, const off_t size, t_buffer *file)
 }
 
 
+//		TEMP double
 t_bool				ft_unmap_file(t_buffer *file)
 {
 	if ((*file).bytes == NULL)
@@ -258,12 +260,6 @@ t_bool				ft_nm(const char *path)
 	if (fstat(fd, &buf) == -1)
 	{
 		FT_ERROR("fstat() failed fd %" PRIu32, fd);
-		return (FALSE);
-	}
-
-	if (!(buf.st_mode & S_IXOTH))
-	{
-		FT_ERROR("%s is not an executable", path);
 		return (FALSE);
 	}
 

@@ -10,16 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
 #include <mach-o/loader.h>
 #include <stdio.h>
 
-#include "types.h"
 #include "libft.h"
+#include "types.h"
+#include "nm_otool.h"
 
 /*
 ** -- basic check
@@ -27,36 +25,12 @@
 typedef char	t__check_for_ft_otool_true[(TRUE == 1) ? 1 : -1];
 typedef char	t__check_for_ft_otool_false[(FALSE == 0) ? 1 : -1];
 
-//		TEMP double
-t_bool				ft_map_file(const int fd, const off_t size, t_buffer *file)
-{
-	void			*bytes;
-
-	if (file == NULL)
-		return (FALSE);
-	if (!(bytes = mmap(0, (size_t)size, PROT_READ, MAP_PRIVATE, fd, 0)))
-		return (TRUE);
-	BUFFER_SETUP(*file, size, bytes);
-	return (TRUE);
-}
-
-//		TEMP double
-t_bool				ft_unmap_file(t_buffer *file)
-{
-	if ((*file).bytes == NULL)
-		return (FALSE);
-	if (munmap((*file).bytes, (*file).size) == -1)
-		return (TRUE);
-	BUFFER_CLEAR(*file);
-	return (TRUE);
-}
-
-t_bool				ft_print(uint64_t addr, const uint64_t size,
+static t_bool		ft_print(uint64_t addr, const uint64_t size,
 							const char *ptr)
 {
 	char			buf[75];
 	int				buf_size;
-	int				sprintf_ret;
+//	int				sprintf_ret;
 	uint64_t		n;
 
 	n = 0;
@@ -65,11 +39,15 @@ t_bool				ft_print(uint64_t addr, const uint64_t size,
 		if (n == 0 || n % 16 == 0)
 		{
 			addr = (n != 0) ? addr + 16 : addr;
-			buf_size = sprintf(buf, "00000001%08x", (t_uint)addr);
+			buf_size = ft_itohex((int)addr, buf, 16);
 		}
+		buf[buf_size] = ' ';
+		buf_size = ft_itohex(ptr[n++], buf + buf_size + 1, 2);
+		/*
 		sprintf_ret = sprintf(buf + buf_size, " %02x", ptr[n++]);
 		buf[buf_size + 1] = buf[buf_size + sprintf_ret - 2];
 		buf[buf_size + 2] = buf[buf_size + sprintf_ret - 1];
+		*/
 		buf_size += 3;
 		if (n % 16 == 0 || n == size)
 		{
@@ -102,7 +80,7 @@ t_bool				ft_segment(struct segment_command_64 *seg, t_buffer file)
 	return (TRUE);
 }
 
-t_bool				ft_header_64(t_buffer file)
+static void			ft_header_64(t_buffer file)
 {
 	struct load_command			*lc;
 	struct mach_header_64		*header;
@@ -118,31 +96,9 @@ t_bool				ft_header_64(t_buffer file)
 		lc = (void *)lc + lc->cmdsize;
 		n += 1;
 	}
-	return (TRUE);
 }
 
-//		TEMP double
-t_bool				ft_magic_number(const char *path, t_buffer file)
-{
-	t_uint					magic_number;
-
-	magic_number = (t_uint)(*(int *)file.bytes);
-	if (magic_number == MH_MAGIC_64)
-	{
-		ft_putstr((char *)path);
-		ft_putstr(":\n");
-		ft_header_64(file);
-	}
-	else
-	{
-		ft_putstr((char *)path);
-		ft_putstr(": is not an object\n");
-		return (FALSE);
-	}
-	return (TRUE);
-}
-
-t_bool				ft_otool(const char *path)
+static t_bool		ft_otool(const char *path)
 {
 	int				fd;
 	struct stat		buf;
@@ -154,7 +110,7 @@ t_bool				ft_otool(const char *path)
 		return (FALSE);
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
-	if (!ft_magic_number(path, file))
+	if (!ft_magic_number(path, file, &ft_header_64))
 		return (FALSE);
 	if (!ft_unmap_file(&file))
 		return (FALSE);

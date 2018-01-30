@@ -13,16 +13,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <types.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-#include "types.h"
 #include "libft.h"
+#include "types.h"
+#include "nm_otool.h"
 
 /*
 ** -- basic check
@@ -30,116 +28,54 @@
 typedef char	t__check_for_ft_nm_true[(TRUE == 1) ? 1 : -1];
 typedef char	t__check_for_ft_nm_false[(FALSE == 0) ? 1 : -1];
 
-//		TEMP double
-t_bool				ft_map_file(const int fd, const off_t size, t_buffer *file)
+static void			ft_display(char *stringtable, struct nlist_64 *list,
+								uint32_t *order, uint32_t n)
 {
-	void			*bytes;
+	char		bytes[20];
+	char		c;
 
-	if (file == NULL)
-		return (FALSE);
-	if (!(bytes = mmap(0, (size_t)size, PROT_READ, MAP_PRIVATE, fd, 0)))
-		return (TRUE);
-	BUFFER_SETUP(*file, size, bytes);
-	return (TRUE);
+	c = ' ';
+	if (list[order[n]].n_type >= N_SECT)
+		c = ft_nsect_decription(list[order[n]].n_sect, list[order[n]].n_type);
+	else if (list[order[n]].n_sect == NO_SECT)
+		c = 'U';
+	ft_memset(bytes, ' ', 19);
+	bytes[19] = '\0';
+	if (list[order[n]].n_type == 1)
+		ft_itohex(list[order[n]].n_value, bytes, 16);
+	bytes[17] = c;
+	ft_putstr(bytes);
+	ft_putstr(stringtable + list[order[n]].n_un.n_strx);
+	ft_putchar('\n');
 }
 
-//		TEMP double
-t_bool				ft_unmap_file(t_buffer *file)
+static t_bool		ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
 {
-	if ((*file).bytes == NULL)
-		return (FALSE);
-	if (munmap((*file).bytes, (*file).size) == -1)
-		return (TRUE);
-	BUFFER_CLEAR(*file);
-	return (TRUE);
-}
-
-char				ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
-{
-	if (n_sect == 1 && n_type == 14)
-		return ('t');
-	if (n_sect == 1 && n_type == 15)
-		return ('T');
-	if (n_sect == 9 && n_type == 14)
-		return ('b');
-	if (n_sect == 9 && n_type == 15)
-		return ('B');
-	if (n_sect == 11 && n_type == 14)
-		return ('d');
-	if (n_sect == 11 && n_type == 15)
-		return ('D');
-	if (n_sect == 12 && n_type == 14)
-		return ('s');
-	if (n_sect == 12 && n_type == 15)
-		return ('S');
-	return (0);
-}
-
-t_bool				ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
-{
-	char			c;
-	uint32_t		n;
-	uint32_t		tmp;
-	uint32_t		*order;
 	char			*stringtable;
 	struct nlist_64	*list;
+	uint32_t		*order;
+	uint32_t		n;
 
 	list = ptr + symoff;
 	stringtable = ptr + stroff;
-	order = malloc(sizeof(uint32_t) * nsyms);
+	if (!(order = ft_get_order(nsyms, stringtable, list)))
+		return (FALSE);
 	n = 0;
 	while (n < nsyms)
-	{
-		order[n] = n;
-		n = n + 1;
-	}
-	n = 0;
-	while (n < nsyms)
-	{
-		if (n + 1 < nsyms && ft_strcmp(stringtable + list[order[n]].n_un.n_strx, stringtable + list[order[n + 1]].n_un.n_strx) >= 0)
-		{
-			tmp = order[n];
-			order[n] = order[n + 1];
-			order[n + 1] = tmp;
-			n = 0;
-		}
-		else
-			n = n + 1;
-	}
-	for (n = 0 ; n < nsyms ; ++ n)
-	{
-		c = ' ';
-		if (list[order[n]].n_type >= N_SECT)
-			c = ft_nsect_decription(list[order[n]].n_sect, list[order[n]].n_type);
-		else if (list[order[n]].n_sect == NO_SECT)
-			c = 'U';
-		if (list[order[n]].n_type == 1)
-			printf("%s %c %s\n",
-					"                ",
-					c,
-					stringtable + list[order[n]].n_un.n_strx);
-		else
-			printf("%s%08x %c %s\n",
-					"00000001",
-					(uint32_t)list[order[n]].n_value,
-					c,
-					stringtable + list[order[n]].n_un.n_strx);
-	}
+		ft_display(stringtable, list, order, n++);
 	free(order);
 	return (TRUE);
 }
 
-t_bool				ft_header_64(t_buffer file)
+static void			ft_header_64(t_buffer file)
 {
-	int						ncmds;
 	struct load_command		*lc;
 	struct mach_header_64	*header;
 	struct symtab_command	*sym;
 
 	header = (struct mach_header_64 *)file.bytes;
-	ncmds = header->ncmds;
 	lc = (void *)file.bytes + sizeof(*header);
-	for (int n = 0 ; n < ncmds ; ++ n)
+	for (int n = 0 ; n < header->cmds ; ++ n)
 	{
 		if (lc->cmd == LC_SYMTAB)
 		{
@@ -149,20 +85,9 @@ t_bool				ft_header_64(t_buffer file)
 		}
 		lc = (void *)lc + lc->cmdsize;
 	}
-	return (TRUE);
 }
 
-t_bool				ft_magic_number(t_buffer file)
-{
-	t_uint					magic_number;
-
-	magic_number = (t_uint)(*(int *)file.bytes);
-	if (magic_number == MH_MAGIC_64)
-		ft_header_64(file);
-	return (TRUE);
-}
-
-t_bool				ft_nm(const char *path)
+static t_bool		ft_nm(const char *path)
 {
 	int				fd;
 	struct stat		buf;
@@ -174,7 +99,7 @@ t_bool				ft_nm(const char *path)
 		return (FALSE);
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
-	if (!ft_magic_number(file))
+	if (!ft_magic_number(path, file, &ft_header_64))
 		return (FALSE);
 	if (!ft_unmap_file(&file))
 		return (FALSE);

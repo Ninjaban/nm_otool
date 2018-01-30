@@ -51,6 +51,7 @@ SRC_BASE	=	ft_strcmp.c \
 			ft_strclr.c \
 			ft_strdel.c \
 			ft_strequ.c \
+			ft_itohex.c \
 			ft_striter.c \
 			ft_striteri.c \
 			ft_strjoin.c \

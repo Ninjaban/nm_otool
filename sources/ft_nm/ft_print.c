@@ -3,6 +3,8 @@
 //
 
 #include <stdlib.h>
+#include "libft.h"
+#include "types.h"
 
 extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 {

@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <mach-o/loader.h>
-#include <stdio.h>
 
 #include "libft.h"
 #include "types.h"
@@ -30,7 +29,6 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 {
 	char			buf[75];
 	int				buf_size;
-//	int				sprintf_ret;
 	uint64_t		n;
 
 	n = 0;
@@ -43,11 +41,6 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 		}
 		buf[buf_size] = ' ';
 		buf_size = ft_itohex(ptr[n++], buf + buf_size + 1, 2);
-		/*
-		sprintf_ret = sprintf(buf + buf_size, " %02x", ptr[n++]);
-		buf[buf_size + 1] = buf[buf_size + sprintf_ret - 2];
-		buf[buf_size + 2] = buf[buf_size + sprintf_ret - 1];
-		*/
 		buf_size += 3;
 		if (n % 16 == 0 || n == size)
 		{

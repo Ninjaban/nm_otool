@@ -29,20 +29,14 @@ typedef struct				s_buffer
 	t_pvoid					bytes;
 }							t_buffer;
 
-# define BUFFER_CLEAR(target)									\
-{																\
-(target).size = 0;												\
-(target).bytes = NULL;											\
-}
-# define BUFFER_SETUP(target, size, bytes)						\
-{																\
-(target).size = (size);											\
-(target).bytes = (bytes);										\
-}
-# define BUFFER_CHECK(target)									\
-{																\
-	(((target).size == 0) && ((target).bytes == NULL)) ||		\
-	(((target).size >  0) && ((target).bytes != NULL)) ||		\
-}
+/*
+**	buffer define
+**
+**	@param		t	(target)	target buffer
+**	@param		s	(size)		size of the pointer
+**	@param		b	(bytes)		pointer
+*/
+# define BUFFER_CLEAR(t)		{(t).size = 0; (t).bytes = NULL;}
+# define BUFFER_SETUP(t, s, b)	{(t).size = (s); (t).bytes = (b);}
 
 #endif

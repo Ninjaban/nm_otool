@@ -15,7 +15,6 @@
 #include <fcntl.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
-#include <types.h>
 #include <stdlib.h>
 
 #include "libft.h"

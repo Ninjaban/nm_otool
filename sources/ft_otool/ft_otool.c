@@ -6,14 +6,16 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 13:18:33 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/29 16:15:52 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/01/31 11:36:40 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <mach-o/loader.h>
+#include <mach-o/nlist.h>
 
+#include <stdio.h>
 #include "libft.h"
 #include "types.h"
 #include "nm_otool.h"
@@ -40,7 +42,7 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 			buf_size = ft_itohex((int)addr, buf, 16);
 		}
 		buf[buf_size] = ' ';
-		buf_size = ft_itohex(ptr[n++], buf + buf_size + 1, 2);
+		ft_itohex(ptr[n++], buf + buf_size + 1, 2);
 		buf_size += 3;
 		if (n % 16 == 0 || n == size)
 		{

@@ -1,6 +1,14 @@
-//
-// Created by Nathan on 30/01/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_tools.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
+/*   Updated: 2018/01/31 08:47:37 by jcarra           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -19,6 +27,7 @@
 **
 **	@return	TRUE in success, FALSE otherwise
 */
+
 extern t_bool		ft_map_file(const int fd, const off_t size, t_buffer *file)
 {
 	void			*bytes;
@@ -40,6 +49,7 @@ extern t_bool		ft_map_file(const int fd, const off_t size, t_buffer *file)
 **
 **	@return	TRUE in success, FALSE otherwise
 */
+
 extern t_bool		ft_unmap_file(t_buffer *file)
 {
 	if ((*file).bytes == NULL)
@@ -61,8 +71,9 @@ extern t_bool		ft_unmap_file(t_buffer *file)
 **
 **	@return	TRUE in success, FALSE otherwise
 */
+
 extern t_bool		ft_magic_number(const char *path, t_buffer file,
-									 void (f)(t_buffer))
+									void (f)(t_buffer))
 {
 	t_uint					magic_number;
 

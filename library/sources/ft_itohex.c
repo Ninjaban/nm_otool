@@ -21,7 +21,7 @@ int			ft_itohex(int nbr, char *bytes, unsigned int size)
 		return (0);
 	n = 0;
 	while (n < size)
-		bytes[n++] = (nbr > 0) ? '0' : 'f';
+		bytes[n++] = (nbr >= 0) ? '0' : 'f';
 	n = size - 1;
 	while (nbr)
 	{

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 08:47:37 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/13 10:00:46 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,21 +73,30 @@ extern t_bool		ft_unmap_file(t_buffer *file)
 */
 
 extern t_bool		ft_magic_number(const char *path, t_buffer file,
-									void (f)(t_buffer))
+									void (f64)(t_buffer),
+									void (f32)(t_buffer))
 {
 	t_uint					magic_number;
 
 	magic_number = (t_uint)(*(int *)file.bytes);
+	if (path)
+		ft_putstr((char *)path);
 	if (magic_number == MH_MAGIC_64)
 	{
-		ft_putstr((char *)path);
-		ft_putstr(":\n");
-		f(file);
+		if (path)
+			ft_putstr(":\n");
+		f64(file);
+	}
+	else if (magic_number == MH_MAGIC)
+	{
+		if (path)
+			ft_putstr(":\n");
+		f32(file);
 	}
 	else
 	{
-		ft_putstr((char *)path);
-		ft_putstr(": is not an object\n");
+		if (path)
+			ft_putstr(": is not an object\n");
 		return (FALSE);
 	}
 	return (TRUE);

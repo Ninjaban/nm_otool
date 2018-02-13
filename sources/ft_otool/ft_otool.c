@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 13:18:33 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 11:36:40 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/13 09:43:02 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ t_bool				ft_segment(struct segment_command_64 *seg, t_buffer file)
 	return (TRUE);
 }
 
+/*
 static void			ft_header_64(t_buffer file)
 {
 	struct load_command			*lc;
@@ -92,7 +93,7 @@ static void			ft_header_64(t_buffer file)
 		n += 1;
 	}
 }
-
+*/
 static t_bool		ft_otool(const char *path)
 {
 	int				fd;
@@ -105,7 +106,7 @@ static t_bool		ft_otool(const char *path)
 		return (FALSE);
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
-	if (!ft_magic_number(path, file, &ft_header_64))
+	if (!ft_magic_number(path, file, &ft_header_64, &ft_header_32))
 		return (FALSE);
 	if (!ft_unmap_file(&file))
 		return (FALSE);

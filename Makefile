@@ -40,7 +40,7 @@ OBJS_TOOLS	=	$(SRCS_TOOLS:.c=.o)
 OBJS_NM		=	$(SRCS_NM:.c=.o)
 OBJS_OTOOL	=	$(SRCS_OTOOL:.c=.o)
 
-CFLAGS		=	-Wall -Wextra -Werror -I./$(DIRINC) -I./$(DIRLIB)$(DIRINC)
+CFLAGS		=	-Wall -Wextra -Werror -I./$(DIRINC) -I./$(DIRLIB)$(DIRINC) -g3
 LFLAGS		=
 
 CC		=	gcc

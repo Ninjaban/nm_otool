@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef NM_OTOOL_TYPES_H
-# define NM_OTOOL_TYPES_H
+#ifndef TYPES_H
+# define TYPES_H
 
 # include <stdint.h>
 

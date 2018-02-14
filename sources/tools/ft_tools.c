@@ -73,8 +73,8 @@ extern t_bool		ft_unmap_file(t_buffer *file)
 */
 
 extern t_bool		ft_magic_number(const char *path, t_buffer file,
-									void (f64)(t_buffer),
-									void (f32)(t_buffer))
+									t_bool (f64)(t_buffer),
+									t_bool (f32)(t_buffer))
 {
 	t_uint					magic_number;
 
@@ -85,13 +85,13 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 	{
 		if (path)
 			ft_putstr(":\n");
-		f64(file);
+		return (f64(file));
 	}
 	else if (magic_number == MH_MAGIC)
 	{
 		if (path)
 			ft_putstr(":\n");
-		f32(file);
+		return (f32(file));
 	}
 	else
 	{

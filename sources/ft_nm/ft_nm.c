@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/02/13 10:05:31 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/14 16:01:54 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <mach-o/loader.h>
 #include <unistd.h>
 
+#include "libft.h"
 #include "types.h"
 #include "nm_otool.h"
 
@@ -42,7 +43,10 @@ static t_bool		ft_nm(const char *path, t_bool print_name)
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
 	if (!ft_magic_number((print_name) ? path : NULL, file, &ft_header_64, &ft_header_32))
+	{
+		ft_putstr_fd("Une erreur est survenue.\n", 2);
 		return (FALSE);
+	}
 	if (!ft_unmap_file(&file))
 		return (FALSE);
 	return (TRUE);

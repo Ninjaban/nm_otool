@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:04 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 10:46:41 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/14 15:44:03 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,7 @@ extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 		return ('s');
 	if (n_sect == 12 && n_type == 15)
 		return ('S');
-	return (0);
+	if (n_sect == 10 && n_type == 15)
+		return ('S');
+	return (' ');
 }

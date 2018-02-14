@@ -82,7 +82,7 @@ void				ft_putstr_fd(char *str, int fd);
 void				*ft_memalloc(size_t size);
 int					ft_strequ(char const *s1, char const *s2);
 int					ft_strnequ(char const *s1, char const *s2, size_t n);
-int					ft_itohex(int nbr, char *bytes, unsigned int size);
+int					ft_itohex(long int nbr, char *bytes, unsigned int size);
 char				*ft_strjoin(char const *s1, char const *s2);
 char				*ft_strmap(char const *s, char (*f)(char));
 char				*ft_strmapi(char const *s, char (*f)(unsigned int, char));

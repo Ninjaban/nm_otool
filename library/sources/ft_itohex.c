@@ -6,15 +6,15 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 10:31:08 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 12:43:16 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/14 13:56:43 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 
-int			ft_itohex(int nbr, char *bytes, unsigned int size)
+int			ft_itohex(long int nbr, char *bytes, unsigned int size)
 {
-	int				res;
+	long int		res;
 	unsigned int	n;
 
 	if (!size || !bytes)

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/02/14 16:02:38 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/02/19 15:06:44 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,10 @@ extern t_bool		ft_header_32(t_buffer file)
 		if (lc->cmd == LC_SYMTAB)
 		{
 			sym = (struct symtab_command *)lc;
-			ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes);
+			if (((struct nlist_64 *)(file.bytes + sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
+				return (FALSE);
+			if (!ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes))
+				return (FALSE);
 			break ;
 		}
 		lc = (void *)lc + lc->cmdsize;

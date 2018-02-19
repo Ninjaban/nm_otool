@@ -14,14 +14,16 @@ NAME		=	nm_otool
 NAME_NM		=	ft_nm
 NAME_OTOOL	=	ft_otool
 
-SRC_TOOLS   =   ft_tools.c
+SRC_TOOLS   =	ft_tools.c
 
 SRC_NM		=	ft_print.c \
 				ft_header64.c \
 				ft_header32.c \
                 ft_nm.c
 
-SRC_OTOOL	=	ft_otool.c
+SRC_OTOOL	=   ft_header64.c \
+        		ft_header32.c \
+				ft_otool.c
 
 LIB		=	libft.a
 

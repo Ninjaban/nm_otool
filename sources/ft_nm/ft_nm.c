@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/02/14 16:01:54 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/06 11:00:16 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ static t_bool		ft_nm(const char *path, t_bool print_name)
 	int				fd;
 	struct stat		buf;
 	t_buffer		file;
+	t_bool			(*f[3])(t_buffer);
 
 	if ((fd = open(path, O_RDONLY)) == -1)
 		return (FALSE);
@@ -42,7 +43,10 @@ static t_bool		ft_nm(const char *path, t_bool print_name)
 		return (FALSE);
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
-	if (!ft_magic_number((print_name) ? path : NULL, file, &ft_header_64, &ft_header_32))
+	f[ARRAY_FAT] = ft_header_fat;
+	f[ARRAY_32] = ft_header_32;
+	f[ARRAY_64] = ft_header_64;
+	if (!ft_magic_number((print_name) ? path : NULL, file, f))
 	{
 		ft_putstr_fd("Une erreur est survenue.\n", 2);
 		return (FALSE);

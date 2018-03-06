@@ -6,15 +6,17 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/02/13 10:00:46 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/06 12:39:10 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <sys/mman.h>
 #include <mach-o/loader.h>
+#include <mach-o/fat.h>
 #include "libft.h"
 #include "types.h"
+#include "nm_otool.h"
 
 /*
 **	ft_map_file()
@@ -73,25 +75,31 @@ extern t_bool		ft_unmap_file(t_buffer *file)
 */
 
 extern t_bool		ft_magic_number(const char *path, t_buffer file,
-									t_bool (f64)(t_buffer),
-									t_bool (f32)(t_buffer))
+									t_bool (*f[3])(t_buffer))
 {
 	t_uint					magic_number;
 
 	magic_number = (t_uint)(*(int *)file.bytes);
 	if (path)
 		ft_putstr((char *)path);
-	if (magic_number == MH_MAGIC_64)
+
+	if (magic_number == FAT_MAGIC || magic_number == FAT_CIGAM)
 	{
 		if (path)
 			ft_putstr(":\n");
-		return (f64(file));
+		return (f[ARRAY_FAT](file));
 	}
 	else if (magic_number == MH_MAGIC)
 	{
 		if (path)
 			ft_putstr(":\n");
-		return (f32(file));
+		return (f[ARRAY_32](file));
+	}
+	else if (magic_number == MH_MAGIC_64)
+	{
+		if (path)
+			ft_putstr(":\n");
+		return (f[ARRAY_64](file));
 	}
 	else
 	{

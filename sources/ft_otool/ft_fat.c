@@ -15,10 +15,20 @@
 #include "types.h"
 #include "nm_otool.h"
 
-uint32_t        swap_uint32(uint32_t val)
+uint32_t	swap_bits(uint32_t val)
 {
-	val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-	return (val << 16) | (val >> 16);
+  uint32_t	a;
+  uint32_t	b;
+  uint32_t	c;
+  uint32_t	d;
+
+  
+  a = (((val >> 16) & 0xFF) << 8);
+  b = (((val >> 16) & 0xFF00) >> 8);
+  c = (((val << 16) & 0xFF0000) << 8);
+  d = (((val << 16) & 0xFF000000) >> 8);
+  val = a | b | c | d;
+  return (val);
 }
 
 extern t_bool		ft_header_fat(t_buffer file)
@@ -29,13 +39,13 @@ extern t_bool		ft_header_fat(t_buffer file)
 	t_bool				(*f[3])(t_buffer);
 
 	BUFFER_SETUP(fat, file.size, file.bytes);
-	arch_size = swap_uint32(((struct fat_header *)fat.bytes)->nfat_arch);
+	arch_size = swap_bits(((struct fat_header *)fat.bytes)->nfat_arch);
 	arch = fat.bytes + sizeof((struct fat_header *)fat.bytes);
 	while (arch_size)
 	{
-		if (swap_uint32(arch->cputype) == CPU_TYPE_X86_64)
+		if (swap_bits(arch->cputype) == CPU_TYPE_X86_64)
 		{
-			fat.bytes += swap_uint32(arch->offset);
+			fat.bytes += swap_bits(arch->offset);
 			break ;
 		}
 		arch += sizeof(struct fat_arch);

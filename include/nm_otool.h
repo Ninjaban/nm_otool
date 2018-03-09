@@ -13,7 +13,7 @@
 #ifndef NM_OTOOL_H
 # define NM_OTOOL_H
 
-enum e_array
+enum	e_array
 {
 	ARRAY_FAT,
 	ARRAY_32,

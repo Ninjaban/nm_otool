@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/19 10:46:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/02/19 11:46:10 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/09 15:04:58 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,10 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 		{
 			addr = (n != 0) ? addr + 16 : addr;
 			buf_size = ft_itohex(addr, buf, 8);
+			buf[buf_size++] = '\t';
 		}
-		buf[buf_size] = ' ';
-		ft_itohex(ptr[n++], buf + buf_size + 1, 2);
+		ft_itohex(ptr[n++], buf + buf_size, 2);
+		buf[buf_size + 2] = ' ';
 		buf_size += 3;
 		if (n % 16 == 0 || n == size)
 		{

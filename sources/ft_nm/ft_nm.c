@@ -26,10 +26,6 @@
 typedef char		t__check_for_ft_nm_true[(TRUE == 1) ? 1 : -1];
 typedef char		t__check_for_ft_nm_false[(FALSE == 0) ? 1 : -1];
 
-
-
-
-
 static t_bool		ft_nm(const char *path, t_bool print_name)
 {
 	int				fd;

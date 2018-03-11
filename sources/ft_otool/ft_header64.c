@@ -29,9 +29,10 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 		{
 			addr = (n != 0) ? addr + 16 : addr;
 			buf_size = ft_itohex(addr, buf, 16);
+			buf[buf_size++] = '\t';
 		}
-		buf[buf_size] = ' ';
-		ft_itohex(ptr[n++], buf + buf_size + 1, 2);
+		ft_itohex(ptr[n++], buf + buf_size, 2);
+		buf[buf_size + 2] = ' ';
 		buf_size += 3;
 		if (n % 16 == 0 || n == size)
 		{

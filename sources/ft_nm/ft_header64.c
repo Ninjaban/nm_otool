@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/06 13:11:36 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/09 15:30:36 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,20 @@
 #include "types.h"
 #include "nm_otool.h"
 
+static void			ft_get_order_swap(uint32_t *order, uint32_t *n)
+{
+	uint32_t		tmp;
+
+	tmp = order[*n];
+	order[*n] = order[*n + 1];
+	order[*n + 1] = tmp;
+	*n = 0;
+}
+
 static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 									struct nlist_64 *list)
 {
 	uint32_t		*order;
-	uint32_t		tmp;
 	uint32_t		n;
 
 	if (!(order = malloc(sizeof(uint32_t) * nsyms)))
@@ -33,7 +42,8 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	n = 0;
 	while (n < nsyms)
 	{
-		if (!(stringtable + list[order[n]].n_un.n_strx) || (n + 1 < nsyms && !(stringtable + list[order[n + 1]].n_un.n_strx)))
+		if (!(stringtable + list[order[n]].n_un.n_strx) || (n + 1 < nsyms &&
+				!(stringtable + list[order[n + 1]].n_un.n_strx)))
 		{
 			free(order);
 			return (NULL);
@@ -41,12 +51,7 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 		if (n + 1 < nsyms && ft_strcmp(
 				stringtable + list[order[n]].n_un.n_strx,
 				stringtable + list[order[n + 1]].n_un.n_strx) > 0)
-		{
-			tmp = order[n];
-			order[n] = order[n + 1];
-			order[n + 1] = tmp;
-			n = 0;
-		}
+			ft_get_order_swap(order, &n);
 		else
 			n = n + 1;
 	}
@@ -54,7 +59,7 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 }
 
 static void			ft_display(char *stringtable, struct nlist_64 *list,
-								  uint32_t index)
+								uint32_t index)
 {
 	char		bytes[20];
 	char		c;
@@ -95,7 +100,7 @@ static t_bool		ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
 	while (n < nsyms)
 	{
 		if (ft_strcmp(stringtable + list[order[n]].n_un.n_strx,
-					  "radr://5614542"))
+					"radr://5614542"))
 			ft_display(stringtable, list, order[n]);
 		n = n + 1;
 	}
@@ -116,12 +121,11 @@ extern t_bool		ft_header_64(t_buffer file)
 	n = 0;
 	while (n < header->ncmds)
 	{
-		if (!lc)
-			return (FALSE);
 		if (lc->cmd == LC_SYMTAB)
 		{
 			sym = (struct symtab_command *)lc;
-			if (((struct nlist_64 *)(file.bytes + sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
+			if (((struct nlist_64 *)(file.bytes +
+					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 				return (FALSE);
 			if (!ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes))
 				return (FALSE);

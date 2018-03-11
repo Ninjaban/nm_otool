@@ -24,7 +24,6 @@
 typedef char	t__check_for_ft_otool_true[(TRUE == 1) ? 1 : -1];
 typedef char	t__check_for_ft_otool_false[(FALSE == 0) ? 1 : -1];
 
-
 static t_bool		ft_otool(const char *path)
 {
 	int				fd;

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/06 12:38:37 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/09 10:51:48 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,20 +15,19 @@
 #include "types.h"
 #include "nm_otool.h"
 
-uint32_t	swap_bits(uint32_t val)
+uint32_t			swap_bits(uint32_t val)
 {
-  uint32_t	a;
-  uint32_t	b;
-  uint32_t	c;
-  uint32_t	d;
+	uint32_t	a;
+	uint32_t	b;
+	uint32_t	c;
+	uint32_t	d;
 
-  
-  a = (((val >> 16) & 0xFF) << 8);
-  b = (((val >> 16) & 0xFF00) >> 8);
-  c = (((val << 16) & 0xFF0000) << 8);
-  d = (((val << 16) & 0xFF000000) >> 8);
-  val = a | b | c | d;
-  return (val);
+	a = (((val >> 16) & 0xFF) << 8);
+	b = (((val >> 16) & 0xFF00) >> 8);
+	c = (((val << 16) & 0xFF0000) << 8);
+	d = (((val << 16) & 0xFF000000) >> 8);
+	val = a | b | c | d;
+	return (val);
 }
 
 extern t_bool		ft_header_fat(t_buffer file)

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/06 11:00:16 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/09 16:13:45 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,6 @@
 */
 typedef char		t__check_for_ft_nm_true[(TRUE == 1) ? 1 : -1];
 typedef char		t__check_for_ft_nm_false[(FALSE == 0) ? 1 : -1];
-
-
-
-
 
 static t_bool		ft_nm(const char *path, t_bool print_name)
 {

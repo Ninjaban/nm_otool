@@ -6,19 +6,21 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:04 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/09 16:07:27 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 14:07:54 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mach-o/nlist.h>
+#include <mach-o/loader.h>
 
-static void			ft_init(char (*tab)[17][31])
+/*
+static void			ft_init(char (*tab)[23][31])
 {
 	uint32_t	n;
 	uint32_t	i;
 
 	n = 0;
-	while (n <= 16)
+	while (n <= 22)
 	{
 		i = 0;
 		while (i <= 30)
@@ -30,7 +32,7 @@ static void			ft_init(char (*tab)[17][31])
 	}
 }
 
-static void			ft_init_char(char (*tab)[17][31], uint32_t pos, char c,
+static void			ft_init_char(char (*tab)[23][31], uint32_t pos, char c,
 									char nb)
 {
 	if (nb == 1 || nb == 3 || nb == 5 || nb == 7)
@@ -40,10 +42,29 @@ static void			ft_init_char(char (*tab)[17][31], uint32_t pos, char c,
 	if (nb == 4 || nb == 5 || nb == 6 || nb == 7)
 		(*tab)[pos][30] = c;
 }
+ */
 
-extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
+								   struct load_command *lc, char (*f)(uint32_t, struct load_command *))
 {
-	char		tab[17][31];
+	char		c;
+
+	c = ' ';
+	if ((n_type & N_TYPE) == N_UNDF || (n_type & N_TYPE) == N_PBUD)
+		c = 'U';
+	else if ((n_type & N_TYPE) == N_ABS)
+		c = 'A';
+	else if ((n_type & N_TYPE) == N_INDR)
+		c = 'I';
+	else if ((n_type & N_TYPE) == N_SECT)
+		c = f(n_sect, lc);
+
+	if ((n_type & N_EXT) == 0 && c != ' ')
+		c = (char)(c - 'A' + 'a');
+
+	return (c);
+/*
+	char		tab[23][31];
 
 	ft_init(&tab);
 	ft_init_char(&tab, 1, 't', 7);
@@ -51,12 +72,13 @@ extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 	ft_init_char(&tab, 5, 's', 1);
 	ft_init_char(&tab, 6, 's', 2);
 	ft_init_char(&tab, 8, 'd', 2);
+	ft_init_char(&tab, 8, 's', 4);
 	ft_init_char(&tab, 9, 'b', 3);
 	ft_init_char(&tab, 10, 's', 2);
 	ft_init_char(&tab, 11, 'd', 3);
 	ft_init_char(&tab, 12, 'b', 1);
 	ft_init_char(&tab, 12, 's', 2);
-
+*/
 	/*
 	tab[1][14] = 't';
 	tab[1][15] = 'T';
@@ -73,12 +95,15 @@ extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 	tab[12][14] = 'b';
 	tab[12][15] = 'S';
 	 */
-
+/*
 	ft_init_char(&tab, 13, 'd', 7);
 	ft_init_char(&tab, 14, 's', 4);
 	ft_init_char(&tab, 15, 'b', 1);
 	ft_init_char(&tab, 16, 's', 2);
-
+	ft_init_char(&tab, 20, 's', 4);
+	ft_init_char(&tab, 21, 's', 4);
+	ft_init_char(&tab, 22, 's', 4);
+*/
 	/*
 	tab[13][14] = 'd';
 	tab[13][15] = 'D';
@@ -87,5 +112,10 @@ extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type)
 	tab[15][14] = 'b';
 	tab[16][15] = 'S';
 	 */
-	return ((n_sect > 16 || n_type > 30) ? (char)' ' : tab[n_sect][n_type]);
+/*
+	if (n_sect > 22 || n_type > 30 || tab[n_sect][n_type] == ' ')
+		printf("nsect %d ntype %d", n_sect, n_type);
+
+	return ((n_sect > 22 || n_type > 30) ? (char)' ' : tab[n_sect][n_type]);
+ */
 }

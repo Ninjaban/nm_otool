@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/09 10:49:38 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 13:17:51 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,10 @@ static void			ft_display(char *stringtable, struct nlist *list,
 	char		c;
 
 	c = ' ';
-	if (list[index].n_type >= N_SECT)
-		c = ft_nsect_decription(list[index].n_sect, list[index].n_type);
-	else if (list[index].n_sect == NO_SECT)
-		c = 'U';
+//	if (list[index].n_type >= N_SECT)
+//		c = ft_get_type(list[index].n_sect, list[index].n_type);
+//	else if (list[index].n_sect == NO_SECT)
+//		c = 'U';
 	ft_memset(bytes, ' ', 11);
 	bytes[11] = '\0';
 	if (list[index].n_type != 1)

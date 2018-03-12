@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:46:10 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/06 09:26:16 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 13:47:07 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 /*
 **	ft_print.c
 */
-extern char			ft_nsect_decription(uint32_t n_sect, uint32_t n_type);
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
+								   struct load_command *lc, char (*f)(uint32_t, struct load_command *));
 
 /*
 **	ft_header64.c

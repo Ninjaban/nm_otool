@@ -6,13 +6,14 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/09 15:30:36 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 16:43:39 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <stdlib.h>
+#include <printf.h>
 
 #include "libft.h"
 #include "types.h"
@@ -58,19 +59,76 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	return (order);
 }
 
+static char			ft_get_type_sectname(char *name)
+{
+	if (!ft_strcmp(name, SECT_DATA))
+		return ('D');
+	else if (!ft_strcmp(name, SECT_BSS))
+		return ('B');
+	else if (!ft_strcmp(name, SECT_TEXT))
+		return ('T');
+	else
+		return ('S');
+}
+
+static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc, uint32_t *nb_n_sect)
+{
+	struct section_64			*sec;
+	struct segment_command_64	*seg;
+	uint32_t					n;
+
+	n = 0;
+	seg = (struct segment_command_64 *)lc;
+	sec = (struct section_64 *)(seg + 1);
+	while (n < seg->nsects)
+	{
+		if (*nb_n_sect == n_sect)
+			return (ft_get_type_sectname(sec->sectname));
+
+		*nb_n_sect = *nb_n_sect + 1;
+		sec = sec + 1;
+		n = n + 1;
+	}
+	return ('?');
+}
+
+static char			ft_get_type_lc(uint32_t n_sect, struct load_command *lc)
+{
+	struct load_command *tmp;
+	uint32_t			nb_n_sect;
+	uint32_t			n;
+	char				c;
+
+	tmp = lc;
+	nb_n_sect = 1;
+	n = 0;
+	c = '?';
+	while (n < ((struct mach_header_64 *)((void *)lc - sizeof(struct mach_header_64 *)))->ncmds)
+	{
+		if (tmp->cmd == LC_SEGMENT_64 && (c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
+			return (c);
+		tmp = (void *)tmp + tmp->cmdsize;
+		n = n + 1;
+	}
+	return ((c == '?') ? 'S' : c);
+}
+
 static void			ft_display(char *stringtable, struct nlist_64 *list,
-								uint32_t index)
+								uint32_t index, struct load_command *lc)
 {
 	char		bytes[20];
 	char		c;
 
 	c = ' ';
-	if ((list[index].n_type >= N_SECT &&
-		ft_nsect_decription(list[index].n_sect, list[index].n_type) == ' ') ||
-		(list[index].n_type < N_SECT && list[index].n_sect != NO_SECT))
+	if ((list[index].n_type < N_SECT && list[index].n_sect != NO_SECT) ||
+			!ft_strlen(stringtable + list[index].n_un.n_strx) ||
+			(list[index].n_type != 1 && list[index].n_value == 0))
 		return ;
 	if (list[index].n_type >= N_SECT)
-		c = ft_nsect_decription(list[index].n_sect, list[index].n_type);
+	{
+		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc, ft_get_type_lc)) == ' ')
+			return ;
+	}
 	else if (list[index].n_sect == NO_SECT)
 		c = 'U';
 	ft_memset(bytes, ' ', 19);
@@ -83,25 +141,25 @@ static void			ft_display(char *stringtable, struct nlist_64 *list,
 	ft_putchar('\n');
 }
 
-static t_bool		ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
+static t_bool		ft_print(struct symtab_command *sym, void *ptr, struct load_command *lc)
 {
 	char			*stringtable;
 	struct nlist_64	*list;
 	uint32_t		*order;
 	uint32_t		n;
 
-	if (!(list = ptr + symoff))
+	if (!(list = ptr + sym->symoff))
 		return (FALSE);
-	if (!(stringtable = ptr + stroff))
+	if (!(stringtable = ptr + sym->stroff))
 		return (FALSE);
-	if (!(order = ft_get_order(nsyms, stringtable, list)))
+	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
 		return (FALSE);
 	n = 0;
-	while (n < nsyms)
+	while (n < sym->nsyms)
 	{
 		if (ft_strcmp(stringtable + list[order[n]].n_un.n_strx,
 					"radr://5614542"))
-			ft_display(stringtable, list, order[n]);
+			ft_display(stringtable, list, order[n], lc);
 		n = n + 1;
 	}
 	free(order);
@@ -127,7 +185,7 @@ extern t_bool		ft_header_64(t_buffer file)
 			if (((struct nlist_64 *)(file.bytes +
 					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 				return (FALSE);
-			if (!ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes))
+			if (!ft_print(sym, file.bytes, (void *)file.bytes + sizeof(*header)))
 				return (FALSE);
 			break ;
 		}

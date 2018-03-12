@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/09 08:50:18 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 17:10:37 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 #include <mach-o/loader.h>
 #include <mach-o/fat.h>
+
 #include "libft.h"
 #include "types.h"
 #include "nm_otool.h"
@@ -79,6 +80,8 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 {
 	t_uint					magic_number;
 
+	if (!file.bytes || !file.size)
+		return (FALSE);
 	magic_number = (t_uint)(*(int *)file.bytes);
 	if (path)
 	{

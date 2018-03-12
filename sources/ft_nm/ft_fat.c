@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 08:17:34 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 17:51:03 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,17 +34,15 @@ extern t_bool		ft_header_fat(t_buffer file)
 {
 	struct fat_arch		*arch;
 	uint32_t			arch_size;
-	t_buffer			fat;
 	t_bool				(*f[3])(t_buffer);
 
-	BUFFER_SETUP(fat, file.size, file.bytes);
-	arch_size = swap_bits(((struct fat_header *)fat.bytes)->nfat_arch);
-	arch = fat.bytes + sizeof((struct fat_header *)fat.bytes);
+	arch_size = swap_bits(((struct fat_header *)file.bytes)->nfat_arch);
+	arch = file.bytes + sizeof((struct fat_header *)file.bytes);
 	while (arch_size)
 	{
 		if (swap_bits(arch->cputype) == CPU_TYPE_X86_64)
 		{
-			fat.bytes += swap_bits(arch->offset);
+			file.bytes += swap_bits(arch->offset);
 			break ;
 		}
 		arch += sizeof(struct fat_arch);
@@ -53,5 +51,5 @@ extern t_bool		ft_header_fat(t_buffer file)
 	f[ARRAY_FAT] = ft_header_fat;
 	f[ARRAY_32] = ft_header_32;
 	f[ARRAY_64] = ft_header_64;
-	return (ft_magic_number(NULL, fat, f));
+	return (ft_magic_number(NULL, file, f));
 }

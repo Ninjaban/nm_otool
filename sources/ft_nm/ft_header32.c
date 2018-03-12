@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 13:17:51 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 17:22:34 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,16 +59,24 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 }
 
 static void			ft_display(char *stringtable, struct nlist *list,
-								uint32_t index)
+								uint32_t index, struct load_command *lc)
 {
 	char		bytes[12];
 	char		c;
 
 	c = ' ';
-//	if (list[index].n_type >= N_SECT)
-//		c = ft_get_type(list[index].n_sect, list[index].n_type);
-//	else if (list[index].n_sect == NO_SECT)
-//		c = 'U';
+	if ((list[index].n_type < N_SECT && list[index].n_sect != NO_SECT) ||
+		!ft_strlen(stringtable + list[index].n_un.n_strx) ||
+		(list[index].n_type != 1 && list[index].n_value == 0))
+		return ;
+	if (list[index].n_type >= N_SECT)
+	{
+		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc,
+							 ft_get_type32)) == ' ')
+			return ;
+	}
+	else if (list[index].n_sect == NO_SECT)
+		c = 'U';
 	ft_memset(bytes, ' ', 11);
 	bytes[11] = '\0';
 	if (list[index].n_type != 1)
@@ -79,23 +87,23 @@ static void			ft_display(char *stringtable, struct nlist *list,
 	ft_putchar('\n');
 }
 
-static t_bool		ft_print(uint32_t nsyms, int symoff, int stroff, void *ptr)
+static t_bool		ft_print(struct symtab_command *sym, void *ptr, struct load_command *lc)
 {
 	char			*stringtable;
 	struct nlist	*list;
 	uint32_t		*order;
 	uint32_t		n;
 
-	list = ptr + symoff;
-	stringtable = ptr + stroff;
-	if (!(order = ft_get_order(nsyms, stringtable, list)))
+	list = ptr + sym->symoff;
+	stringtable = ptr + sym->stroff;
+	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
 		return (FALSE);
 	n = 0;
-	while (n < nsyms)
+	while (n < sym->nsyms)
 	{
 		if (ft_strcmp(stringtable + list[order[n]].n_un.n_strx,
 					"radr://5614542"))
-			ft_display(stringtable, list, order[n]);
+			ft_display(stringtable, list, order[n], lc);
 		n = n + 1;
 	}
 	free(order);
@@ -120,7 +128,7 @@ extern t_bool		ft_header_32(t_buffer file)
 			if (((struct nlist_64 *)(file.bytes +
 					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 				return (FALSE);
-			if (!ft_print(sym->nsyms, sym->symoff, sym->stroff, file.bytes))
+			if (!ft_print(sym, file.bytes, (void *)file.bytes + sizeof(*header)))
 				return (FALSE);
 			break ;
 		}

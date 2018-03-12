@@ -17,6 +17,8 @@ NAME_OTOOL	=	ft_otool
 SRC_TOOLS   =	ft_tools.c
 
 SRC_NM		=	ft_print.c \
+				ft_print64.c \
+				ft_print32.c \
 				ft_header64.c \
 				ft_header32.c \
 				ft_fat.c \

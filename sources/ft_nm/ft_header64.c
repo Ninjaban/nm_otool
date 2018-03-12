@@ -6,14 +6,13 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 16:43:39 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/12 17:17:08 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <stdlib.h>
-#include <printf.h>
 
 #include "libft.h"
 #include "types.h"
@@ -59,60 +58,6 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	return (order);
 }
 
-static char			ft_get_type_sectname(char *name)
-{
-	if (!ft_strcmp(name, SECT_DATA))
-		return ('D');
-	else if (!ft_strcmp(name, SECT_BSS))
-		return ('B');
-	else if (!ft_strcmp(name, SECT_TEXT))
-		return ('T');
-	else
-		return ('S');
-}
-
-static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc, uint32_t *nb_n_sect)
-{
-	struct section_64			*sec;
-	struct segment_command_64	*seg;
-	uint32_t					n;
-
-	n = 0;
-	seg = (struct segment_command_64 *)lc;
-	sec = (struct section_64 *)(seg + 1);
-	while (n < seg->nsects)
-	{
-		if (*nb_n_sect == n_sect)
-			return (ft_get_type_sectname(sec->sectname));
-
-		*nb_n_sect = *nb_n_sect + 1;
-		sec = sec + 1;
-		n = n + 1;
-	}
-	return ('?');
-}
-
-static char			ft_get_type_lc(uint32_t n_sect, struct load_command *lc)
-{
-	struct load_command *tmp;
-	uint32_t			nb_n_sect;
-	uint32_t			n;
-	char				c;
-
-	tmp = lc;
-	nb_n_sect = 1;
-	n = 0;
-	c = '?';
-	while (n < ((struct mach_header_64 *)((void *)lc - sizeof(struct mach_header_64 *)))->ncmds)
-	{
-		if (tmp->cmd == LC_SEGMENT_64 && (c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
-			return (c);
-		tmp = (void *)tmp + tmp->cmdsize;
-		n = n + 1;
-	}
-	return ((c == '?') ? 'S' : c);
-}
-
 static void			ft_display(char *stringtable, struct nlist_64 *list,
 								uint32_t index, struct load_command *lc)
 {
@@ -126,7 +71,8 @@ static void			ft_display(char *stringtable, struct nlist_64 *list,
 		return ;
 	if (list[index].n_type >= N_SECT)
 	{
-		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc, ft_get_type_lc)) == ' ')
+		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc,
+							 ft_get_type64)) == ' ')
 			return ;
 	}
 	else if (list[index].n_sect == NO_SECT)

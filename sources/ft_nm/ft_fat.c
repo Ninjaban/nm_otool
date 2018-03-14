@@ -35,7 +35,11 @@ extern t_bool		ft_header_fat(t_buffer file)
 	struct fat_arch		*arch;
 	uint32_t			arch_size;
 	t_bool				(*f[3])(t_buffer);
+	static uint32_t		n = 0;
 
+	if (n == file.size)
+		return (FALSE);
+	n = file.size;
 	arch_size = swap_bits(((struct fat_header *)file.bytes)->nfat_arch);
 	arch = file.bytes + sizeof((struct fat_header *)file.bytes);
 	while (arch_size)

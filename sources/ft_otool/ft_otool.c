@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 13:18:33 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 08:17:34 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/14 10:21:36 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,11 @@ static t_bool		ft_otool(const char *path)
 		return (FALSE);
 	if (fstat(fd, &buf) == -1)
 		return (FALSE);
+	if (!S_ISREG(buf.st_mode))
+	{
+		close(fd);
+		return (FALSE);
+	}
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
 	f[ARRAY_FAT] = ft_header_fat;

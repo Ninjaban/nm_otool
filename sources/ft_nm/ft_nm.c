@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 11:20:59 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 08:18:28 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/14 10:18:52 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,18 @@ static t_bool		ft_nm(const char *path, t_bool print_name)
 		return (FALSE);
 	if (fstat(fd, &buf) == -1)
 		return (FALSE);
+	if (!S_ISREG(buf.st_mode))
+	{
+		close(fd);
+		return (FALSE);
+	}
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
 	f[ARRAY_FAT] = ft_header_fat;
 	f[ARRAY_32] = ft_header_32;
 	f[ARRAY_64] = ft_header_64;
 	if (!ft_magic_number((print_name) ? path : NULL, file, f))
-	{
-		ft_putstr_fd("Une erreur est survenue.\n", 2);
 		return (FALSE);
-	}
 	if (!ft_unmap_file(&file))
 		return (FALSE);
 	return (TRUE);
@@ -59,14 +61,20 @@ int					main(int ac, char **av)
 	if (ac == 1)
 	{
 		if (!ft_nm("a.out", FALSE))
+		{
+			ft_putstr_fd("Une erreur est survenue.\n", 2);
 			return (1);
+		}
 	}
 	else
 	{
 		n = 1;
 		while (n < ac)
 			if (!ft_nm(av[n++], (ac == 2) ? FALSE : TRUE))
+			{
+				ft_putstr_fd("Une erreur est survenue.\n", 2);
 				return (1);
+			}
 	}
 	return (0);
 }

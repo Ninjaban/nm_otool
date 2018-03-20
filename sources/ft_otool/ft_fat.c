@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 14:11:52 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 15:16:54 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,8 @@ extern t_bool		ft_header_fat(t_buffer file)
 		if (swap_bits(arch->cputype) == CPU_TYPE_X86_64)
 		{
 			file.bytes += swap_bits(arch->offset);
+			file.size -= swap_bits(arch->offset);
+			ft_check_addr(file.bytes, file.bytes + file.size, NULL, 0);
 			break ;
 		}
 		arch += sizeof(struct fat_arch);

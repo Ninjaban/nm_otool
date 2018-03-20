@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 13:37:34 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 15:45:10 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 
 	if (!file.bytes || !file.size)
 		return (FALSE);
-	magic_number = (t_uint)(*(int *)file.bytes);
+	magic_number = *(unsigned int *)file.bytes;
 	if (path)
 	{
 		ft_putstr((char *)path);

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 17:22:34 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 08:33:17 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ static void			ft_display(char *stringtable, struct nlist *list,
 	if (list[index].n_type >= N_SECT)
 	{
 		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc,
-							 ft_get_type32)) == ' ')
+							ft_get_type32)) == ' ')
 			return ;
 	}
 	else if (list[index].n_sect == NO_SECT)
@@ -87,7 +87,8 @@ static void			ft_display(char *stringtable, struct nlist *list,
 	ft_putchar('\n');
 }
 
-static t_bool		ft_print(struct symtab_command *sym, void *ptr, struct load_command *lc)
+static t_bool		ft_print(struct symtab_command *sym, void *ptr,
+							struct load_command *lc)
 {
 	char			*stringtable;
 	struct nlist	*list;
@@ -128,7 +129,7 @@ extern t_bool		ft_header_32(t_buffer file)
 			if (((struct nlist_64 *)(file.bytes +
 					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 				return (FALSE);
-			if (!ft_print(sym, file.bytes, (void *)file.bytes + sizeof(*header)))
+			if (!ft_print(sym, file.bytes, file.bytes + sizeof(*header)))
 				return (FALSE);
 			break ;
 		}

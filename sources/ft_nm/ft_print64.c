@@ -27,7 +27,8 @@ static char			ft_get_type_sectname(char *name)
 		return ('S');
 }
 
-static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc, uint32_t *nb_n_sect)
+static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc,
+										uint32_t *nb_n_sect)
 {
 	struct section_64			*sec;
 	struct segment_command_64	*seg;
@@ -40,7 +41,6 @@ static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc, uint32
 	{
 		if (*nb_n_sect == n_sect)
 			return (ft_get_type_sectname(sec->sectname));
-
 		*nb_n_sect = *nb_n_sect + 1;
 		sec = sec + 1;
 		n = n + 1;
@@ -59,9 +59,11 @@ extern char			ft_get_type64(uint32_t n_sect, struct load_command *lc)
 	nb_n_sect = 1;
 	n = 0;
 	c = '?';
-	while (n < ((struct mach_header_64 *)((void *)lc - sizeof(struct mach_header_64 *)))->ncmds)
+	while (n < ((struct mach_header_64 *)((void *)lc -
+			sizeof(struct mach_header_64 *)))->ncmds)
 	{
-		if (tmp->cmd == LC_SEGMENT_64 && (c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
+		if (tmp->cmd == LC_SEGMENT_64 &&
+				(c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
 			return (c);
 		tmp = (void *)tmp + tmp->cmdsize;
 		n = n + 1;

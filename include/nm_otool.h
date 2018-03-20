@@ -29,6 +29,7 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 									t_bool (*f[3])(t_buffer));
 
 # ifdef _MACHO_LOADER_H_
+
 /*
 **	ft_print.c
 */
@@ -47,6 +48,7 @@ extern t_bool		ft_header_64(t_buffer file);
 extern t_bool		ft_header_32(t_buffer file);
 
 # ifdef _MACHO_LOADER_H_
+
 /*
 **	ft_print64.c
 */

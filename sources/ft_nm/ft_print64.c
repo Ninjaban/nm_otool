@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 17:16:38 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 17:17:54 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 14:08:26 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "libft.h"
 #include "types.h"
+#include "nm_otool.h"
 
 static char			ft_get_type_sectname(char *name)
 {
@@ -36,9 +37,13 @@ static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc,
 
 	n = 0;
 	seg = (struct segment_command_64 *)lc;
+	if (!(CHECK_ADDR(seg, sizeof(struct segment_command *))))
+		return ('?');
 	sec = (struct section_64 *)(seg + 1);
 	while (n < seg->nsects)
 	{
+		if (!(CHECK_ADDR(sec, sizeof(struct section *))))
+			return ('?');
 		if (*nb_n_sect == n_sect)
 			return (ft_get_type_sectname(sec->sectname));
 		*nb_n_sect = *nb_n_sect + 1;
@@ -62,6 +67,8 @@ extern char			ft_get_type64(uint32_t n_sect, struct load_command *lc)
 	while (n < ((struct mach_header_64 *)((void *)lc -
 			sizeof(struct mach_header_64 *)))->ncmds)
 	{
+		if (!(CHECK_ADDR(tmp, sizeof(struct load_command *))))
+			return ('S');
 		if (tmp->cmd == LC_SEGMENT_64 &&
 				(c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
 			return (c);

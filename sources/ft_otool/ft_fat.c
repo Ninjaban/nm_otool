@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/14 10:08:24 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 14:11:52 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,20 @@ uint32_t			swap_bits(uint32_t val)
 	return (val);
 }
 
+static t_bool		ft_header_fat_call(t_buffer file)
+{
+	t_bool				(*f[3])(t_buffer);
+
+	f[ARRAY_FAT] = ft_header_fat;
+	f[ARRAY_32] = ft_header_32;
+	f[ARRAY_64] = ft_header_64;
+	return (ft_magic_number(NULL, file, f));
+}
+
 extern t_bool		ft_header_fat(t_buffer file)
 {
 	struct fat_arch		*arch;
 	uint32_t			arch_size;
-	t_bool				(*f[3])(t_buffer);
 	static uint32_t		n = 0;
 
 	if (n == file.size)
@@ -45,6 +54,8 @@ extern t_bool		ft_header_fat(t_buffer file)
 	arch = file.bytes + sizeof((struct fat_header *)file.bytes);
 	while (arch_size)
 	{
+		if (!(CHECK_ADDR(arch, sizeof(struct fat_arch *))))
+			return (FALSE);
 		if (swap_bits(arch->cputype) == CPU_TYPE_X86_64)
 		{
 			file.bytes += swap_bits(arch->offset);
@@ -53,8 +64,5 @@ extern t_bool		ft_header_fat(t_buffer file)
 		arch += sizeof(struct fat_arch);
 		arch_size = arch_size - 1;
 	}
-	f[ARRAY_FAT] = ft_header_fat;
-	f[ARRAY_32] = ft_header_32;
-	f[ARRAY_64] = ft_header_64;
-	return (ft_magic_number(NULL, file, f));
+	return (ft_header_fat_call(file));
 }

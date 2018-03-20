@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/14 09:58:14 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 13:37:34 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ extern t_bool		ft_map_file(const int fd, const off_t size, t_buffer *file)
 	if (!(bytes = mmap(0, (size_t)size, PROT_READ, MAP_PRIVATE, fd, 0)))
 		return (FALSE);
 	BUFFER_SETUP(*file, size, bytes);
+	ft_check_addr(file->bytes, file->bytes + file->size, NULL, 0);
 	return (TRUE);
 }
 
@@ -100,4 +101,24 @@ extern t_bool		ft_magic_number(const char *path, t_buffer file,
 		return (f[ARRAY_64](file));
 	else
 		return (FALSE);
+}
+
+extern t_bool		ft_check_addr(void *in_start, void *in_end, void *addr,
+								uint32_t size)
+{
+	static void		*start = NULL;
+	static void		*end = NULL;
+
+	if (in_start && in_end)
+	{
+		start = in_start;
+		end = in_end;
+		return (TRUE);
+	}
+	if (!addr)
+		return (FALSE);
+	if ((start && end) && addr >= start && addr <= end &&
+			addr + size >= start && addr + size < end)
+		return (TRUE);
+	return (FALSE);
 }

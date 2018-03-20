@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 08:34:09 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 14:16:29 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	n = 0;
 	while (n < nsyms)
 	{
-		if (!(stringtable + list[order[n]].n_un.n_strx) || (n + 1 < nsyms &&
-				!(stringtable + list[order[n + 1]].n_un.n_strx)))
+		if (!(CHECK_ADDR(stringtable + list[order[n]].n_un.n_strx, sizeof(char *))) ||
+		(n + 1 < nsyms && !(CHECK_ADDR(stringtable + list[order[n + 1]].n_un.n_strx, sizeof(char *)))))
 		{
 			free(order);
 			return (NULL);
@@ -95,9 +95,11 @@ static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 	uint32_t		*order;
 	uint32_t		n;
 
-	if (!(list = ptr + sym->symoff))
+	list = ptr + sym->symoff;
+	if (!(CHECK_ADDR(list, sizeof(struct nlist *))))
 		return (FALSE);
-	if (!(stringtable = ptr + sym->stroff))
+	stringtable = ptr + sym->stroff;
+	if (!(CHECK_ADDR(stringtable, sizeof(char *))))
 		return (FALSE);
 	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
 		return (FALSE);
@@ -120,12 +122,15 @@ extern t_bool		ft_header_64(t_buffer file)
 	struct symtab_command	*sym;
 	uint32_t				n;
 
-	if (!(header = (struct mach_header_64 *)file.bytes))
+	header = (struct mach_header_64 *)file.bytes;
+	if (!(CHECK_ADDR(header, sizeof(struct mach_header *))))
 		return (FALSE);
 	lc = (void *)file.bytes + sizeof(*header);
 	n = 0;
 	while (n < header->ncmds)
 	{
+		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
+			return (FALSE);
 		if (lc->cmd == LC_SYMTAB)
 		{
 			sym = (struct symtab_command *)lc;

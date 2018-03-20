@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 08:33:17 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 14:14:15 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	n = 0;
 	while (n < nsyms)
 	{
-		if (!(stringtable + list[order[n]].n_un.n_strx) || (n + 1 < nsyms &&
-					!(stringtable + list[order[n + 1]].n_un.n_strx)))
+		if (!(CHECK_ADDR(stringtable + list[order[n]].n_un.n_strx, sizeof(char *))) ||
+		(n + 1 < nsyms && !(CHECK_ADDR(stringtable + list[order[n + 1]].n_un.n_strx, sizeof(char *)))))
 		{
 			free(order);
 			return (NULL);
@@ -96,7 +96,11 @@ static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 	uint32_t		n;
 
 	list = ptr + sym->symoff;
+	if (!(CHECK_ADDR(list, sizeof(struct nlist *))))
+		return (FALSE);
 	stringtable = ptr + sym->stroff;
+	if (!(CHECK_ADDR(stringtable, sizeof(char *))))
+		return (FALSE);
 	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
 		return (FALSE);
 	n = 0;
@@ -119,14 +123,19 @@ extern t_bool		ft_header_32(t_buffer file)
 	uint32_t				n;
 
 	header = (struct mach_header *)file.bytes;
+	if (!(CHECK_ADDR(header, sizeof(struct mach_header *))))
+		return (FALSE);
 	lc = (void *)file.bytes + sizeof(*header);
 	n = 0;
 	while (n < header->ncmds)
 	{
+		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
+			return (FALSE);
 		if (lc->cmd == LC_SYMTAB)
 		{
 			sym = (struct symtab_command *)lc;
-			if (((struct nlist_64 *)(file.bytes +
+			if (!(CHECK_ADDR(sym, sizeof(struct symtab_command *))) ||
+				((struct nlist_64 *)(file.bytes +
 					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 				return (FALSE);
 			if (!ft_print(sym, file.bytes, file.bytes + sizeof(*header)))

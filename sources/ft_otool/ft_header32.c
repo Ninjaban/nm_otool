@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/19 10:46:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/12 08:17:34 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/20 14:17:00 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "libft.h"
 #include "types.h"
+#include "nm_otool.h"
 
 static t_bool		ft_print(uint64_t addr, const uint64_t size,
 							const char *ptr)
@@ -53,6 +54,8 @@ static t_bool		ft_segment(struct segment_command *seg, t_buffer file)
 	sec = (struct section *)(seg + 1);
 	while (n < seg->nsects)
 	{
+		if (!(CHECK_ADDR(sec, sizeof(struct section *))))
+			return (FALSE);
 		if (!ft_strcmp(sec->sectname, SECT_TEXT) &&
 			!ft_strcmp(sec->segname, SEG_TEXT))
 		{
@@ -65,20 +68,25 @@ static t_bool		ft_segment(struct segment_command *seg, t_buffer file)
 	return (TRUE);
 }
 
-extern void			ft_header_32(t_buffer file)
+extern t_bool		ft_header_32(t_buffer file)
 {
 	struct load_command			*lc;
 	struct mach_header			*header;
 	t_uint						n;
 
 	header = (struct mach_header *)file.bytes;
+	if (!(CHECK_ADDR(header, sizeof(struct mach_header *))))
+		return (FALSE);
 	lc = (void *)file.bytes + sizeof(*header);
 	n = 0;
 	while (n < header->ncmds)
 	{
+		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
+			return (FALSE);
 		if (lc->cmd == LC_SEGMENT)
 			ft_segment((struct segment_command *)lc, file);
 		lc = (void *)lc + lc->cmdsize;
 		n += 1;
 	}
+	return (TRUE);
 }

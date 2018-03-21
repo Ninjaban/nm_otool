@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 13:18:33 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/14 10:21:36 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/21 10:20:50 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ static t_bool		ft_otool(const char *path)
 	int				fd;
 	struct stat		buf;
 	t_buffer		file;
-	t_bool			(*f[3])(t_buffer);
 
 	if ((fd = open(path, O_RDONLY)) == -1)
 		return (FALSE);
@@ -42,10 +41,7 @@ static t_bool		ft_otool(const char *path)
 	}
 	if (!ft_map_file(fd, buf.st_size, &file))
 		return (FALSE);
-	f[ARRAY_FAT] = ft_header_fat;
-	f[ARRAY_32] = ft_header_32;
-	f[ARRAY_64] = ft_header_64;
-	if (!ft_magic_number(path, file, f))
+	if (!ft_magic_number(path, file))
 		return (FALSE);
 	if (!ft_unmap_file(&file))
 		return (FALSE);

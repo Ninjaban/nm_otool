@@ -6,13 +6,13 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 16:14:17 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/21 10:23:03 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <mach-o/fat.h>
-#include <printf.h>
+
 #include "types.h"
 #include "nm_otool.h"
 
@@ -29,16 +29,6 @@ static uint32_t		swap_bits(uint32_t val)
 	d = (((val << 16) & 0xFF000000) >> 8);
 	val = a | b | c | d;
 	return (val);
-}
-
-static t_bool		ft_header_fat_call(t_buffer file)
-{
-	t_bool				(*f[3])(t_buffer);
-
-	f[ARRAY_FAT] = ft_header_fat;
-	f[ARRAY_32] = ft_header_32;
-	f[ARRAY_64] = ft_header_64;
-	return (ft_magic_number(NULL, file, f));
 }
 
 extern t_bool		ft_header_fat(t_buffer file)
@@ -66,5 +56,5 @@ extern t_bool		ft_header_fat(t_buffer file)
 	if (!offset)
 		return (FALSE);
 	BUFFER_SETUP(file, file.size - offset, file.bytes + offset);
-	return (ft_header_fat_call(file));
+	return (ft_magic_number(NULL, file));
 }

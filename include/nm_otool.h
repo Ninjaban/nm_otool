@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:46:10 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 12:54:38 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/21 10:20:50 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,7 @@ enum	e_array
 */
 extern t_bool		ft_map_file(const int fd, const off_t size, t_buffer *file);
 extern t_bool		ft_unmap_file(t_buffer *file);
-extern t_bool		ft_magic_number(const char *path, t_buffer file,
-									t_bool (*f[3])(t_buffer));
+extern t_bool		ft_magic_number(const char *path, t_buffer file);
 extern t_bool		ft_check_addr(void *in_start, void *in_end, void *addr,
 								uint32_t size);
 

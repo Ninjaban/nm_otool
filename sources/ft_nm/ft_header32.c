@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 14:14:15 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/21 11:51:49 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@
 #include "types.h"
 #include "nm_otool.h"
 
-static void			ft_get_order_swap(uint32_t *order, uint32_t *n)
+static uint32_t		ft_get_order_swap(uint32_t *order, uint32_t n)
 {
 	uint32_t		tmp;
 
-	tmp = order[*n];
-	order[*n] = order[*n + 1];
-	order[*n + 1] = tmp;
-	*n = 0;
+	tmp = order[n];
+	order[n] = order[n + 1];
+	order[n + 1] = tmp;
+	return (0);
 }
 
 static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
@@ -42,18 +42,17 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	n = 0;
 	while (n < nsyms)
 	{
-		if (!(CHECK_ADDR(stringtable + list[order[n]].n_un.n_strx, sizeof(char *))) ||
-		(n + 1 < nsyms && !(CHECK_ADDR(stringtable + list[order[n + 1]].n_un.n_strx, sizeof(char *)))))
+		if (!(CHECK_ADDR(stringtable + list[order[n]].n_un.n_strx,
+			sizeof(char *))) || (n + 1 < nsyms && !(CHECK_ADDR(stringtable +
+			list[order[n + 1]].n_un.n_strx, sizeof(char *)))))
 		{
 			free(order);
 			return (NULL);
 		}
-		if (n + 1 < nsyms && ft_strcmp(
-				stringtable + list[order[n]].n_un.n_strx,
-				stringtable + list[order[n + 1]].n_un.n_strx) > 0)
-			ft_get_order_swap(order, &n);
-		else
-			n = n + 1;
+		n = (n + 1 < nsyms && ft_strcmp(
+			stringtable + list[order[n]].n_un.n_strx,
+			stringtable + list[order[n + 1]].n_un.n_strx) > 0) ?
+			ft_get_order_swap(order, n) : n + 1;
 	}
 	return (order);
 }
@@ -88,15 +87,15 @@ static void			ft_display(char *stringtable, struct nlist *list,
 }
 
 static t_bool		ft_print(struct symtab_command *sym, void *ptr,
-							struct load_command *lc)
+							struct load_command *lc, struct nlist *list)
 {
 	char			*stringtable;
-	struct nlist	*list;
 	uint32_t		*order;
 	uint32_t		n;
 
-	list = ptr + sym->symoff;
-	if (!(CHECK_ADDR(list, sizeof(struct nlist *))))
+	if (!(CHECK_ADDR(sym, sizeof(struct symtab_command *))) ||
+		!(CHECK_ADDR(list, sizeof(struct nlist *))) ||
+		list[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 		return (FALSE);
 	stringtable = ptr + sym->stroff;
 	if (!(CHECK_ADDR(stringtable, sizeof(char *))))
@@ -119,7 +118,6 @@ extern t_bool		ft_header_32(t_buffer file)
 {
 	struct load_command		*lc;
 	struct mach_header		*header;
-	struct symtab_command	*sym;
 	uint32_t				n;
 
 	header = (struct mach_header *)file.bytes;
@@ -133,12 +131,8 @@ extern t_bool		ft_header_32(t_buffer file)
 			return (FALSE);
 		if (lc->cmd == LC_SYMTAB)
 		{
-			sym = (struct symtab_command *)lc;
-			if (!(CHECK_ADDR(sym, sizeof(struct symtab_command *))) ||
-				((struct nlist_64 *)(file.bytes +
-					sym->symoff))[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
-				return (FALSE);
-			if (!ft_print(sym, file.bytes, file.bytes + sizeof(*header)))
+			if (!ft_print((struct symtab_command *)lc, file.bytes, file.bytes +
+		sizeof(*header), file.bytes + ((struct symtab_command *)lc)->symoff))
 				return (FALSE);
 			break ;
 		}

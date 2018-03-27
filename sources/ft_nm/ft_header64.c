@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/21 11:55:12 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/27 02:04:58 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 }
 
 static void			ft_display(char *stringtable, struct nlist_64 *list,
-								uint32_t index, struct load_command *lc)
+								uint32_t index, t_types *types)
 {
 	char		bytes[20];
 	char		c;
@@ -70,8 +70,7 @@ static void			ft_display(char *stringtable, struct nlist_64 *list,
 		return ;
 	if (list[index].n_type >= N_SECT)
 	{
-		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, lc,
-							ft_get_type64)) == ' ')
+		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, types) == ' ')
 			return ;
 	}
 	else if (list[index].n_sect == NO_SECT)
@@ -92,6 +91,7 @@ static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 	char			*stringtable;
 	uint32_t		*order;
 	uint32_t		n;
+	t_types			*types;
 
 	if (!(CHECK_ADDR(list, sizeof(struct nlist_64 *))) ||
 			list[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
@@ -101,12 +101,14 @@ static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 		return (FALSE);
 	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
 		return (FALSE);
+	if (!ft_get_type64(lc, &types))
+		return (FALSE);
 	n = 0;
 	while (n < sym->nsyms)
 	{
 		if (ft_strcmp(stringtable + list[order[n]].n_un.n_strx,
 					"radr://5614542"))
-			ft_display(stringtable, list, order[n], lc);
+			ft_display(stringtable, list, order[n], types);
 		n = n + 1;
 	}
 	free(order);

@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 17:16:38 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 14:08:26 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/27 01:53:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,51 @@
 #include "types.h"
 #include "nm_otool.h"
 
-static char			ft_get_type_sectname(char *name)
+static t_bool	ft_types_push_back(t_types **types, uint32_t n_sect, char type)
 {
-	if (!ft_strcmp(name, SECT_DATA))
-		return ('D');
-	else if (!ft_strcmp(name, SECT_BSS))
-		return ('B');
-	else if (!ft_strcmp(name, SECT_TEXT))
-		return ('T');
-	else
-		return ('S');
+	t_types		*tmp;
+
+	tmp = *types;
+	if (*types)
+	{
+		while (tmp->next)
+			tmp = tmp->next;
+		if (!(tmp->next = malloc(sizeof(t_types *))))
+			return (FALSE);
+		tmp = tmp->next;
+	}
+	else if (!(tmp = malloc(sizeof(t_types *))))
+		return (FALSE);
+	tmp->n_sect = n_sect;
+	tmp->type = type;
+	tmp->next = NULL;
+	return (TRUE);
 }
 
-static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc,
-										uint32_t *nb_n_sect)
+static t_bool	ft_get_type_free(t_types *types)
+{
+	if (types && types->next)
+		ft_get_type_free(types->next);
+	free(types);
+	return (FALSE);
+}
+
+static t_bool	ft_get_type_sectname(char *name, uint32_t n_sect, t_types **types)
+{
+	char	type;
+	if (!ft_strcmp(name, SECT_DATA))
+		type = 'D';
+	else if (!ft_strcmp(name, SECT_BSS))
+		type = 'B';
+	else if (!ft_strcmp(name, SECT_TEXT))
+		type = 'T';
+	else
+		type = 'S';
+	return (ft_types_push_back(types, n_sect, type));
+}
+
+static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *nb_n_sect,
+									t_types **types)
 {
 	struct section_64			*sec;
 	struct segment_command_64	*seg;
@@ -38,42 +69,38 @@ static char			ft_get_type_nsect(uint32_t n_sect, struct load_command *lc,
 	n = 0;
 	seg = (struct segment_command_64 *)lc;
 	if (!(CHECK_ADDR(seg, sizeof(struct segment_command *))))
-		return ('?');
+		return (FALSE);
 	sec = (struct section_64 *)(seg + 1);
 	while (n < seg->nsects)
 	{
 		if (!(CHECK_ADDR(sec, sizeof(struct section *))))
-			return ('?');
-		if (*nb_n_sect == n_sect)
-			return (ft_get_type_sectname(sec->sectname));
+			return (FALSE);
+		if (!ft_get_type_sectname(sec->sectname, *nb_n_sect, types))
+			return (FALSE);
 		*nb_n_sect = *nb_n_sect + 1;
 		sec = sec + 1;
 		n = n + 1;
 	}
-	return ('?');
+	return (TRUE);
 }
 
-extern char			ft_get_type64(uint32_t n_sect, struct load_command *lc)
+extern t_bool	ft_get_type64(struct load_command *lc, t_types **types)
 {
-	struct load_command *tmp;
-	uint32_t			nb_n_sect;
 	uint32_t			n;
-	char				c;
+	uint32_t			nb_n_sect;
 
-	tmp = lc;
-	nb_n_sect = 1;
 	n = 0;
-	c = '?';
+	nb_n_sect = 1;
+	*types = NULL;
 	while (n < ((struct mach_header_64 *)((void *)lc -
 			sizeof(struct mach_header_64 *)))->ncmds)
 	{
-		if (!(CHECK_ADDR(tmp, sizeof(struct load_command *))))
-			return ('S');
-		if (tmp->cmd == LC_SEGMENT_64 &&
-				(c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
-			return (c);
-		tmp = (void *)tmp + tmp->cmdsize;
+		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
+			return (ft_get_type_free(*types));
+		if (lc->cmd == LC_SEGMENT_64 && ft_get_type_nsect(lc, &nb_n_sect, types))
+			return (ft_get_type_free(*types));
+		lc = (void *)lc + lc->cmdsize;
 		n = n + 1;
 	}
-	return ((c == '?') ? 'S' : c);
+	return (TRUE);
 }

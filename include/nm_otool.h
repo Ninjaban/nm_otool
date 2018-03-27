@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:46:10 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/21 10:20:50 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/27 11:57:30 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,13 @@ enum	e_array
 	ARRAY_32,
 	ARRAY_64
 };
+
+typedef struct		s_types
+{
+	uint32_t		n_sect;
+	char			type;
+	void			*next;
+}					t_types;
 
 /*
 **	ft_tools.c
@@ -44,6 +51,7 @@ extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
 **	ft_header64.c
 */
 extern t_bool		ft_header_64(t_buffer file);
+extern t_bool		ft_get_type64(struct load_command *lc, t_types **types);
 
 /*
 **	ft_header32.c

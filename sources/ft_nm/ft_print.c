@@ -6,15 +6,24 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:04 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/20 08:35:07 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/27 01:24:39 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mach-o/nlist.h>
 #include <mach-o/loader.h>
+#include <nm_otool.h>
 
-extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
-			struct load_command *lc, char (*f)(uint32_t, struct load_command *))
+static char			ft_get_type_nsect(t_types *types, uint32_t n_sect)
+{
+	if (!types)
+		return ('S');
+	while (types->n_sect != n_sect && types->next)
+		types = types->next;
+	return ((types) ? types->type : (char)'S');
+}
+
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type, t_types *types)
 {
 	char		c;
 
@@ -26,7 +35,7 @@ extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
 	else if ((n_type & N_TYPE) == N_INDR)
 		c = 'I';
 	else if ((n_type & N_TYPE) == N_SECT)
-		c = f(n_sect, lc);
+		c = ft_get_type_nsect(types, n_sect);
 	if ((n_type & N_EXT) == 0 && c != ' ')
 		c = (char)(c - 'A' + 'a');
 	return (c);

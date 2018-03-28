@@ -24,6 +24,14 @@
 typedef char	t__check_for_ft_otool_true[(TRUE == 1) ? 1 : -1];
 typedef char	t__check_for_ft_otool_false[(FALSE == 0) ? 1 : -1];
 
+static t_bool		ft_error(uint32_t n)
+{
+	ft_putstr("Error : ");
+	ft_putnbr(n);
+	ft_putstr(".\n");
+	return (FALSE);
+}
+
 static t_bool		ft_otool(const char *path)
 {
 	int				fd;
@@ -31,20 +39,20 @@ static t_bool		ft_otool(const char *path)
 	t_buffer		file;
 
 	if ((fd = open(path, O_RDONLY)) == -1)
-		return (FALSE);
+		return (ft_error(1));
 	if (fstat(fd, &buf) == -1)
-		return (FALSE);
+		return (ft_error(2));
 	if (!S_ISREG(buf.st_mode))
 	{
 		close(fd);
-		return (FALSE);
+		return (ft_error(3));
 	}
 	if (!ft_map_file(fd, buf.st_size, &file))
-		return (FALSE);
+		return (ft_error(4));
 	if (!ft_magic_number(path, file))
-		return (FALSE);
+		return (ft_error(5));
 	if (!ft_unmap_file(&file))
-		return (FALSE);
+		return (ft_error(6));
 	return (TRUE);
 }
 

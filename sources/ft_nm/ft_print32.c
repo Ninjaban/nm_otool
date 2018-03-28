@@ -69,7 +69,7 @@ extern char			ft_get_type32(uint32_t n_sect, struct load_command *lc)
 	{
 		if (!(CHECK_ADDR(tmp, sizeof(struct load_command *))))
 			return ('S');
-		if (tmp->cmd == LC_SEGMENT_64 &&
+		if (tmp->cmd == LC_SEGMENT &&
 				(c = ft_get_type_nsect(n_sect, tmp, &nb_n_sect)) != '?')
 			return (c);
 		tmp = (void *)tmp + tmp->cmdsize;

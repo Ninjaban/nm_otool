@@ -23,8 +23,8 @@ for element in $* ; do
     	        printf "[\033[42mOK\033[0m] $element\n"
     	    else
         	    printf "[\033[41mKO\033[0m] $element\n"
-          	    file=`echo $element | grep -oE "[a-zA-Z0-9_]*$"`
-          	    echo $tmp > $dir$file
+          	    file=`echo $element | grep -oE "[a-zA-Z0-9_.]*$"`
+          	    diff diff1 diff2 > $dir$file
     	    fi
 
     	else

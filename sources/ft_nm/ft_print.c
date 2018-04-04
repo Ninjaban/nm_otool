@@ -6,19 +6,21 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:04 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/27 01:24:39 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:02:15 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
 #include <mach-o/nlist.h>
-#include <mach-o/loader.h>
-#include <nm_otool.h>
+
+#include "types.h"
+#include "nm_otool.h"
 
 static char			ft_get_type_nsect(t_types *types, uint32_t n_sect)
 {
 	if (!types)
 		return ('S');
-	while (types->n_sect != n_sect && types->next)
+	while (types && types->n_sect != n_sect)
 		types = types->next;
 	return ((types) ? types->type : (char)'S');
 }

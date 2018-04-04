@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 09:19:31 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/21 10:20:50 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:42:05 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,28 +33,28 @@ uint32_t			swap_bits(uint32_t val)
 
 extern t_bool		ft_header_fat(t_buffer file)
 {
+	struct fat_header	*fat;
 	struct fat_arch		*arch;
 	uint32_t			arch_size;
-	static uint32_t		n = 0;
+	uint32_t			offset;
 
-	if (n == file.size)
+	fat = (struct fat_header *)file.bytes;
+	if (!(CHECK_ADDR(fat, sizeof(struct fat_header *))))
 		return (FALSE);
-	n = file.size;
-	arch_size = swap_bits(((struct fat_header *)file.bytes)->nfat_arch);
-	arch = file.bytes + sizeof((struct fat_header *)file.bytes);
+	arch = (struct fat_arch *)(fat + 1);
+	arch_size = swap_bits(fat->nfat_arch);
+	offset = 0;
 	while (arch_size)
 	{
 		if (!(CHECK_ADDR(arch, sizeof(struct fat_arch *))))
 			return (FALSE);
 		if (swap_bits(arch->cputype) == CPU_TYPE_X86_64)
-		{
-			file.bytes += swap_bits(arch->offset);
-			file.size -= swap_bits(arch->offset);
-			ft_check_addr(file.bytes, file.bytes + file.size, NULL, 0);
-			break ;
-		}
-		arch += sizeof(struct fat_arch);
+			offset = swap_bits(arch->offset);
+		arch += 1;
 		arch_size = arch_size - 1;
 	}
+	if (!offset)
+		return (FALSE);
+	BUFFER_SETUP(file, file.size - offset, file.bytes + offset);
 	return (ft_magic_number(NULL, file));
 }

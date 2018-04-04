@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/19 10:42:22 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/26 18:17:06 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:34:12 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "types.h"
 #include "nm_otool.h"
 
-static t_bool		ft_print(uint64_t addr, const uint64_t size,
+static void			ft_print(uint64_t addr, const uint64_t size,
 							const char *ptr)
 {
 	char			buf[75];
@@ -42,7 +42,6 @@ static t_bool		ft_print(uint64_t addr, const uint64_t size,
 			ft_putstr(buf);
 		}
 	}
-	return (TRUE);
 }
 
 static t_bool		ft_segment(struct segment_command_64 *seg, t_buffer file)
@@ -83,8 +82,9 @@ extern t_bool		ft_header_64(t_buffer file)
 	{
 		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
 			return (FALSE);
-		if (lc->cmd == LC_SEGMENT_64)
-			ft_segment((struct segment_command_64 *)lc, file);
+		if (lc->cmd == LC_SEGMENT_64 &&
+			!ft_segment((struct segment_command_64 *)lc, file))
+			return (FALSE);
 		lc = (void *)lc + lc->cmdsize;
 		n += 1;
 	}

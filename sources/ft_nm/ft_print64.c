@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 17:16:38 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/27 01:53:36 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:13:48 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,25 +29,23 @@ static t_bool	ft_types_push_back(t_types **types, uint32_t n_sect, char type)
 			return (FALSE);
 		tmp = tmp->next;
 	}
-	else if (!(tmp = malloc(sizeof(t_types *))))
-		return (FALSE);
+	else
+	{
+		if (!(*types = malloc(sizeof(t_types *))))
+			return (FALSE);
+		tmp = *types;
+	}
 	tmp->n_sect = n_sect;
 	tmp->type = type;
 	tmp->next = NULL;
 	return (TRUE);
 }
 
-static t_bool	ft_get_type_free(t_types *types)
-{
-	if (types && types->next)
-		ft_get_type_free(types->next);
-	free(types);
-	return (FALSE);
-}
-
-static t_bool	ft_get_type_sectname(char *name, uint32_t n_sect, t_types **types)
+static t_bool	ft_get_type_sectname(char *name, uint32_t n_sect,
+									t_types **types)
 {
 	char	type;
+
 	if (!ft_strcmp(name, SECT_DATA))
 		type = 'D';
 	else if (!ft_strcmp(name, SECT_BSS))
@@ -59,7 +57,7 @@ static t_bool	ft_get_type_sectname(char *name, uint32_t n_sect, t_types **types)
 	return (ft_types_push_back(types, n_sect, type));
 }
 
-static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *nb_n_sect,
+static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *n_sect,
 									t_types **types)
 {
 	struct section_64			*sec;
@@ -75,9 +73,9 @@ static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *nb_n_sect,
 	{
 		if (!(CHECK_ADDR(sec, sizeof(struct section *))))
 			return (FALSE);
-		if (!ft_get_type_sectname(sec->sectname, *nb_n_sect, types))
+		if (!ft_get_type_sectname(sec->sectname, *n_sect, types))
 			return (FALSE);
-		*nb_n_sect = *nb_n_sect + 1;
+		*n_sect = *n_sect + 1;
 		sec = sec + 1;
 		n = n + 1;
 	}
@@ -87,17 +85,17 @@ static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *nb_n_sect,
 extern t_bool	ft_get_type64(struct load_command *lc, t_types **types)
 {
 	uint32_t			n;
-	uint32_t			nb_n_sect;
+	uint32_t			n_sect;
 
 	n = 0;
-	nb_n_sect = 1;
+	n_sect = 1;
 	*types = NULL;
 	while (n < ((struct mach_header_64 *)((void *)lc -
 			sizeof(struct mach_header_64 *)))->ncmds)
 	{
 		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
 			return (ft_get_type_free(*types));
-		if (lc->cmd == LC_SEGMENT_64 && ft_get_type_nsect(lc, &nb_n_sect, types))
+		if (lc->cmd == LC_SEGMENT_64 && !ft_get_type_nsect(lc, &n_sect, types))
 			return (ft_get_type_free(*types));
 		lc = (void *)lc + lc->cmdsize;
 		n = n + 1;

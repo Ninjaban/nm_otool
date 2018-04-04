@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:50 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/26 18:17:05 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:38:33 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 #include <mach-o/loader.h>
 #include <mach-o/fat.h>
+#include <printf.h>
 
 #include "libft.h"
 #include "types.h"
@@ -119,5 +120,13 @@ extern t_bool		ft_check_addr(void *in_start, void *in_end, void *addr,
 	if ((start && end) && addr >= start && addr <= end &&
 			addr + size >= start && addr + size < end)
 		return (TRUE);
+	return (FALSE);
+}
+
+extern t_bool		ft_get_type_free(t_types *types)
+{
+	if (types && types->next)
+		ft_get_type_free(types->next);
+	free(types);
 	return (FALSE);
 }

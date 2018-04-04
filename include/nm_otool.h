@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:46:10 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/27 11:57:30 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:12:49 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ extern t_bool		ft_unmap_file(t_buffer *file);
 extern t_bool		ft_magic_number(const char *path, t_buffer file);
 extern t_bool		ft_check_addr(void *in_start, void *in_end, void *addr,
 								uint32_t size);
+extern t_bool		ft_get_type_free(t_types *types);
 
 # define CHECK_ADDR(addr, size)		{ ft_check_addr(NULL, NULL, addr, size); }
 
@@ -43,15 +44,13 @@ extern t_bool		ft_check_addr(void *in_start, void *in_end, void *addr,
 /*
 **	ft_print.c
 */
-extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
-		struct load_command *lc, char (*f)(uint32_t, struct load_command *));
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type, t_types *types);
 # endif
 
 /*
 **	ft_header64.c
 */
 extern t_bool		ft_header_64(t_buffer file);
-extern t_bool		ft_get_type64(struct load_command *lc, t_types **types);
 
 /*
 **	ft_header32.c
@@ -63,12 +62,12 @@ extern t_bool		ft_header_32(t_buffer file);
 /*
 **	ft_print64.c
 */
-extern char			ft_get_type64(uint32_t n_sect, struct load_command *lc);
+extern t_bool		ft_get_type64(struct load_command *lc, t_types **types);
 
 /*
 **	ft_print32.c
 */
-extern char			ft_get_type32(uint32_t n_sect, struct load_command *lc);
+extern t_bool		ft_get_type32(struct load_command *lc, t_types **types);
 # endif
 
 /*

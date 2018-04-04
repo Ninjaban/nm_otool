@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:46:53 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/27 02:04:58 by nathan           ###   ########.fr       */
+/*   Updated: 2018/03/29 09:17:08 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,8 @@ static void			ft_display(char *stringtable, struct nlist_64 *list,
 		return ;
 	if (list[index].n_type >= N_SECT)
 	{
-		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, types) == ' ')
+		if ((c = ft_get_type(list[index].n_sect, list[index].n_type, types))
+			== ' ')
 			return ;
 	}
 	else if (list[index].n_sect == NO_SECT)
@@ -111,6 +112,7 @@ static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 			ft_display(stringtable, list, order[n], types);
 		n = n + 1;
 	}
+	ft_get_type_free(types);
 	free(order);
 	return (TRUE);
 }

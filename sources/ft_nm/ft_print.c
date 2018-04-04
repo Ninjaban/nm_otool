@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:44:04 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/29 09:02:15 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/04 09:06:33 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ static char			ft_get_type_nsect(t_types *types, uint32_t n_sect)
 	return ((types) ? types->type : (char)'S');
 }
 
-extern char			ft_get_type(uint32_t n_sect, uint32_t n_type, t_types *types)
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
+								t_types *types)
 {
 	char		c;
 

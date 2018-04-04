@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 17:16:38 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/29 09:13:05 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/04 09:07:41 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,11 +58,11 @@ static t_bool	ft_get_type_sectname(char *name, uint32_t n_sect,
 }
 
 static t_bool	ft_get_type_nsect(struct load_command *lc, uint32_t *n_sect,
-								   t_types **types)
+									t_types **types)
 {
 	struct section			*sec;
 	struct segment_command	*seg;
-	uint32_t					n;
+	uint32_t				n;
 
 	n = 0;
 	seg = (struct segment_command *)lc;
@@ -91,7 +91,7 @@ extern t_bool	ft_get_type32(struct load_command *lc, t_types **types)
 	n_sect = 1;
 	*types = NULL;
 	while (n < ((struct mach_header *)((void *)lc -
-										  sizeof(struct mach_header *)))->ncmds)
+										sizeof(struct mach_header *)))->ncmds)
 	{
 		if (!(CHECK_ADDR(lc, sizeof(struct load_command *))))
 			return (ft_get_type_free(*types));

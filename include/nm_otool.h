@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 08:46:10 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/29 09:12:49 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/04 09:05:51 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ extern t_bool		ft_get_type_free(t_types *types);
 /*
 **	ft_print.c
 */
-extern char			ft_get_type(uint32_t n_sect, uint32_t n_type, t_types *types);
+extern char			ft_get_type(uint32_t n_sect, uint32_t n_type,
+								t_types *types);
 # endif
 
 /*

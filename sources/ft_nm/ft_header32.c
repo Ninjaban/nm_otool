@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 09:50:12 by jcarra            #+#    #+#             */
-/*   Updated: 2018/03/29 09:19:09 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/04 10:23:34 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static uint32_t		ft_get_order_swap(uint32_t *order, uint32_t n)
 	return (0);
 }
 
-static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
+static uint32_t		*ft_get_order(uint32_t nsyms, char *strtab,
 									struct nlist *list)
 {
 	uint32_t		*order;
@@ -42,22 +42,22 @@ static uint32_t		*ft_get_order(uint32_t nsyms, char *stringtable,
 	n = 0;
 	while (n < nsyms)
 	{
-		if (!(CHECK_ADDR(stringtable + list[order[n]].n_un.n_strx,
-			sizeof(char *))) || (n + 1 < nsyms && !(CHECK_ADDR(stringtable +
+		if (!(CHECK_ADDR(strtab + list[order[n]].n_un.n_strx,
+			sizeof(char *))) || (n + 1 < nsyms && !(CHECK_ADDR(strtab +
 			list[order[n + 1]].n_un.n_strx, sizeof(char *)))))
 		{
 			free(order);
 			return (NULL);
 		}
 		n = (n + 1 < nsyms && ft_strcmp(
-			stringtable + list[order[n]].n_un.n_strx,
-			stringtable + list[order[n + 1]].n_un.n_strx) > 0) ?
+			strtab + list[order[n]].n_un.n_strx,
+			strtab + list[order[n + 1]].n_un.n_strx) > 0) ?
 			ft_get_order_swap(order, n) : n + 1;
 	}
 	return (order);
 }
 
-static void			ft_display(char *stringtable, struct nlist *list,
+static void			ft_display(char *strtab, struct nlist *list,
 								uint32_t index, t_types *types)
 {
 	char		bytes[12];
@@ -65,7 +65,7 @@ static void			ft_display(char *stringtable, struct nlist *list,
 
 	c = ' ';
 	if ((list[index].n_type < N_SECT && list[index].n_sect != NO_SECT) ||
-		!ft_strlen(stringtable + list[index].n_un.n_strx) ||
+		!ft_strlen(strtab + list[index].n_un.n_strx) ||
 		(list[index].n_type != 1 && list[index].n_value == 0))
 		return ;
 	if (list[index].n_type >= N_SECT)
@@ -82,36 +82,33 @@ static void			ft_display(char *stringtable, struct nlist *list,
 		ft_itohex(list[index].n_value, bytes, 8);
 	bytes[9] = c;
 	ft_putstr(bytes);
-	ft_putstr(stringtable + list[index].n_un.n_strx);
+	ft_putstr(strtab + list[index].n_un.n_strx);
 	ft_putchar('\n');
 }
 
 static t_bool		ft_print(struct symtab_command *sym, void *ptr,
 							struct load_command *lc, struct nlist *list)
 {
-	char			*stringtable;
+	char			*strtab;
 	uint32_t		*order;
 	uint32_t		n;
 	t_types			*types;
 
-	(void)lc;
 	if (!(CHECK_ADDR(sym, sizeof(struct symtab_command *))) ||
 		!(CHECK_ADDR(list, sizeof(struct nlist *))) ||
 		list[sym->nsyms - 1].n_un.n_strx >= sym->strsize)
 		return (FALSE);
-	stringtable = ptr + sym->stroff;
-	if (!(CHECK_ADDR(stringtable, sizeof(char *))))
+	strtab = ptr + sym->stroff;
+	if (!(CHECK_ADDR(strtab, sizeof(char *))))
 		return (FALSE);
-	if (!(order = ft_get_order(sym->nsyms, stringtable, list)))
-		return (FALSE);
-	if (!ft_get_type32(lc, &types))
+	if (!(order = ft_get_order(sym->nsyms, strtab, list)) ||
+		!ft_get_type32(lc, &types))
 		return (FALSE);
 	n = 0;
 	while (n < sym->nsyms)
 	{
-		if (ft_strcmp(stringtable + list[order[n]].n_un.n_strx,
-					"radr://5614542"))
-			ft_display(stringtable, list, order[n], types);
+		if (ft_strcmp(strtab + list[order[n]].n_un.n_strx, "radr://5614542"))
+			ft_display(strtab, list, order[n], types);
 		n = n + 1;
 	}
 	ft_get_type_free(types);
